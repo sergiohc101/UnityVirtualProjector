@@ -1,0 +1,27 @@
+﻿#
+# This is the TODO file for the project
+# [!] ...better migrate this list to some other github feature request tool
+#
+# Bonzolabs
+# Last update : 27/Dec/2020
+#
+
+>>> Implement scale for projected QUAD
+
+>>> Implement lookat vector for camera (currently always origin)
+
+>>> Make possible to input the Camera Extrinsics into the scene
+
+>>> Separate the line renderer to a different class
+    (the linerenderer gameobjects should be nested somewhere)
+
+>>> Make possible to handle SVG files for the line renderer (some code already exists)
+
+>>> Implement the multi plane logic (:
+    (this shall detect when a projected point is outside the plane limit, 
+    find the nearest point in the plane & handle plane overlaping! :S )
+
+>>> Implement export mechanism to get an output file with the plane points ready for tracing
+
+>>> (OPT) Investigate how to overlap the camera picture on the scene
+

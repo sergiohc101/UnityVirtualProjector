@@ -110,6 +110,47 @@ NavMeshSettings:
     tileSize: 256
     accuratePlacement: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &548632708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 548632710}
+  - component: {fileID: 548632709}
+  m_Layer: 0
+  m_Name: FileReaderTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &548632709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 548632708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3461fb92b5c764f0d8ffc0c1415b64c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textAsset: {fileID: 4900000, guid: 68f0b1ee1521e4a48a76cb584bdf9954, type: 3}
+--- !u!4 &548632710
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 548632708}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -500}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &565267378
 Prefab:
   m_ObjectHideFlags: 0
@@ -226,17 +267,37 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
-      propertyPath: DRAW_LINES
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
       propertyPath: MOVE_CAM
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1185576131111490, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_Name
-      value: VirtualProjector_1
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: LIMIT_RADIUS
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: polyRadius
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: textAsset
+      value: 
+      objectReference: {fileID: 4900000, guid: 68f0b1ee1521e4a48a76cb584bdf9954, type: 3}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: f
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: polyVerts
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}

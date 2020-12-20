@@ -27,7 +27,7 @@ GameObject:
   - component: {fileID: 33790460001745834}
   - component: {fileID: 23298837575703850}
   m_Layer: 0
-  m_Name: VirtualProjector 1
+  m_Name: VirtualProjector_1
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -63,7 +63,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1200
+  far clip plane: 3000
   field of view: 45
   orthographic: 0
   orthographic size: -19.99
@@ -127,7 +127,7 @@ AudioListener:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1185576131111490}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!92 &92894644676492074
 Behaviour:
   m_ObjectHideFlags: 1
@@ -146,8 +146,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60765c45339314f748204cb9664154ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MOVE_CAM: 0
-  DRAW_LINES: 0
+  MOVE_CAM: 1
+  DRAW_LINES: 1
   camColor: {r: 0.07058824, g: 0.60784316, b: 0.95686275, a: 1}
   DRAW_QUAD: 1
   quadColor: {r: 1, g: 0, b: 1, a: 1}
@@ -155,12 +155,12 @@ MonoBehaviour:
   triColor: {r: 0, g: 1, b: 1, a: 1}
   DRAW_POLY: 1
   polyColor: {r: 1, g: 0, b: 0, a: 1}
-  polyVerts: 30
+  polyVerts: 5
   polyRadius: 100
   f: 1000
   u: 640
   v: 480
-  timeToCompleteCircle: 5
+  timeToCompleteCircle: 10
   radius: 500
   currentAngle: 0
 --- !u!124 &124501822494566380
@@ -169,4 +169,4 @@ Behaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1185576131111490}
-  m_Enabled: 1
+  m_Enabled: 0
