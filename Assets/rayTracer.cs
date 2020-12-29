@@ -9,6 +9,8 @@ public class rayTracer : MonoBehaviour
     public bool MOVE_CAM = true;
     public bool DRAW_LINES = true;
     public Color camColor;
+    public int lineRendererWidth = 10;
+    public int lineRendererOffset = -1;
 
     public bool DRAW_QUAD = true;
     public Color quadColor = Color.magenta;
@@ -36,9 +38,9 @@ public class rayTracer : MonoBehaviour
 
     //public Matrix4x4 R;
 
-    public float timeToCompleteCircle = 5.0f;
+    public float timeToCompleteCircle = 5.0f; // in seconds
     public float radius = 300;
-    public float currentAngle;
+    public float currentAngleDeg;
 
 
     //Wall points wrt origin
@@ -84,31 +86,23 @@ public class rayTracer : MonoBehaviour
         K[1, 2] = -v / 2.0f;
         K[2, 2] = -1;
 
-        line = this.gameObject.AddComponent<LineRenderer>();
-        //line = this.gameObject.GetComponent<LineRenderer>();
+        line = this.gameObject.AddComponent<LineRenderer>(); // FIXME : move this to a different gameobject if necesary 
         line.material = new Material(Shader.Find("Sprites/Default"));
-        Color color = Color.magenta;
-        line.SetColors(color, color);
-        //line.startColor = Color.red;	line.endColor = Color.red;
-        line.SetWidth(10.0f, 10.0f);
+        line.startColor = line.endColor = quadColor;
+        line.startWidth = line.endWidth = lineRendererWidth;
         line.loop = true;
         line.positionCount = 4;
         //GameObject.Destroy(line, duration);
 
-        // Vector3 ofs = new Vector3( 0.0f, 0.0f, -10.0f);
-        // line.SetPosition(0, Wall[0] *5.0f + ofs );
-        // line.SetPosition(1, Wall[1] *5.0f + ofs );
-        // line.SetPosition(2, Wall[2] *5.0f + ofs );
-        // line.SetPosition(3, Wall[3] *5.0f + ofs );
-
+        ///////////////////////////////////////////////////
+        // TRIANGLE
+        ///////////////////////////////////////////////////
         triangleRenderer = new GameObject("triangleRenderer");
         triangleRenderer.AddComponent<LineRenderer>();
         triLine = triangleRenderer.GetComponent<LineRenderer>();
         triLine.material = new Material(Shader.Find("Sprites/Default"));
-        Color colorT = Color.green;
-        triLine.SetColors(colorT, colorT);
-        //triLine.startColor = Color.cyan; triLine.endColor = Color.cyan;
-        triLine.SetWidth(10.0f, 10.0f);
+        triLine.startColor = triLine.endColor = triColor;
+        triLine.startWidth = triLine.endWidth = lineRendererWidth;
         triLine.positionCount = triShape.Length;
 
         ///////////////////////////////////////////////////
@@ -119,8 +113,8 @@ public class rayTracer : MonoBehaviour
         polyLine = polyRenderer.GetComponent<LineRenderer>();
         polyLine.material = new Material(Shader.Find("Sprites/Default"));
         polyLine.loop = true;
-        polyLine.startColor = polyColor; triLine.endColor = polyColor;
-        polyLine.SetWidth(10.0f, 10.0f);
+        polyLine.startColor = polyLine.endColor = polyColor;
+        polyLine.startWidth = polyLine.endWidth = lineRendererWidth;
         polyLine.positionCount = polyVerts;
 
 
@@ -163,28 +157,20 @@ public class rayTracer : MonoBehaviour
         // Projector circular movement 
         if (MOVE_CAM)
         {
-            float speed = (Mathf.PI * 2.0f) / timeToCompleteCircle;
-            currentAngle += Time.deltaTime * speed;
-            if (currentAngle >= Mathf.PI * 2.0f) currentAngle = 0.0f;
+            float speed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
+            currentAngleDeg += Time.deltaTime * speed;
+            if (currentAngleDeg >= Mathf.PI * 2.0f * Mathf.Rad2Deg) currentAngleDeg = 0.0f;
 
-            float Cx = radius * Mathf.Cos(currentAngle);
-            float Cy = radius * Mathf.Sin(currentAngle);
+            float Cx = radius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
+            float Cy = radius * Mathf.Sin(currentAngleDeg * Mathf.Deg2Rad);
             transform.position = new Vector3(Cx, Cy, transform.position.z);
         }
-
         //Projector looks at origin after moving
         transform.LookAt(Vector3.zero);
-
         // Line from projector to origin
-        if (DRAW_LINES) Debug.DrawLine(Vector3.zero, transform.position, Color.green);
+        if (DRAW_LINES) Debug.DrawLine(Vector3.zero, transform.position, camColor);
 
-        // Draw Lines
-        // line.SetPosition(0, start);
-        // line.SetPosition(1, Vector3.zero );
-        // line.SetPosition(2, this.transform.position );
-        // line.SetPosition(3, end);
-
-        ////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////
 
         Matrix4x4 L = transform.localToWorldMatrix;
         //DEBUG("L= \n" + L );
@@ -195,17 +181,16 @@ public class rayTracer : MonoBehaviour
         Vector3 t = L.transpose.MultiplyVector(-transform.position) / 50.0f;
         //DEBUG("Pos= " + (transform.position) );
         DEBUG("|Pos|= " + transform.position.magnitude);
-
         DEBUG("t= " + t);
 
-        //Copy origial view matrix
+        // Copy origial view matrix
         Matrix4x4 Rt = L;
         //DEBUG("Rt= \n" + Rt );
-        //Remove matrix scale
+        // Remove matrix scale
         Rt.SetColumn(0, Rt.GetColumn(0) / scale[0]);
         Rt.SetColumn(1, Rt.GetColumn(1) / scale[1]);
         Rt.SetColumn(2, Rt.GetColumn(2) / scale[2]);
-        //Transpose Matrix
+        // Transpose Matrix
         Rt = Rt.transpose;
         DEBUG("Rt^T= \n" + Rt);
         t = Rt.MultiplyVector(-transform.position);
@@ -220,7 +205,7 @@ public class rayTracer : MonoBehaviour
         Vector3 P4_ = -Rt.MultiplyVector(transform.position - Wall[3]);
         DEBUG("\t->P4= " + P4_);
 
-        //Compute plane normal wrt the camera
+        // Compute plane normal wrt the camera
         Vector3 P21 = P2_ - P1_;
         Vector3 P41 = P4_ - P1_;
         //DEBUG("\t\t P_21= " + P21 );
@@ -230,270 +215,70 @@ public class rayTracer : MonoBehaviour
         //DEBUG("\t\t Plane_angle=  " + planeAngle );
 
         Vector3 planeNormal = Vector3.Cross(P21, P41).normalized;
-        //planeNormal.z *= -1.0f;
         DEBUG("\t\t Plane_normal=  " + planeNormal);
-
-        //Debug.DrawLine(Vector3.zero, -planeNormal * 500.0f , Color.cyan);
-        //Debug.DrawLine(transform.position, transform.position - planeNormal * 500.0f , Color.cyan);
-
 
         // A plane can be defined as:
         // a point representing how far the plane is from the world origin
         //Vector3 planePoint = Vector3.zero;
         Vector3 planePoint = t;
         // a normal (defining the orientation of the plane), should be negative if we are firing the ray from above
-        //Vector3 planeNormal = Vector3.back;
         // We are intrerested in calculating a point in this plane called p
         // The vector between p and p0 and the normal is always perpendicular: (p - p_0) . n = 0
 
-        // A ray to point p can be defined as: rayPos + rayDirection * rayDistance = p, where:
-        // the origin of the ray
+        // A ray to point p can be defined as: rayPos + rayDirection * rayDistance = p
         // This should be the coordinate system origin
-        Vector3 rayPosition = Vector3.zero;  //this.transform.position;
-                                             //l is the direction of the ray
-        Vector3 rayDirection = t; //P4_;
-                                  //t is the length of the ray, which we can get by combining the above equations:
-                                  //t = ((p_0 - l_0) . n) / (l . n)
+        Vector3 rayPosition = Vector3.zero;
 
-        DEBUG("\t >Plane point= \t " + planePoint);
-        DEBUG("\t >Plane normal= \t " + planeNormal);
-        DEBUG("\t >Ray origin= \t " + rayPosition);
-        DEBUG("\t >Ray direction= \t " + rayDirection);
-
-        // But there's a chance that the line doesn't intersect with the plane, and we can check this by first
-        // calculating the denominator and see if it's not small. 
-        // We are also checking that the denominator is positive or we are looking in the opposite direction
-        float denominator_ = Vector3.Dot(rayDirection, planeNormal);
-
-        if (denominator_ > 0.000001f)
         {
-            //The distance to the plane
-            float rayDistance = Vector3.Dot(planePoint - rayPosition, planeNormal) / denominator_;
+            // Test ray from camera to plane origin
+            Vector3 rayDirection = t;
 
-            //Where the ray intersects with a plane
-            Vector3 p = rayPosition + rayDirection * rayDistance; //Hit wrt Camera
+            DEBUG("\t >Plane point= \t " + planePoint);
+            DEBUG("\t >Plane normal= \t " + planeNormal);
+            DEBUG("\t >Ray origin= \t " + rayPosition);
+            DEBUG("\t >Ray direction= \t " + rayDirection);
 
-            DEBUG("\t[!!] Hit at [wrt Camera]: " + p);
-            DEBUG("\t\t Hit_angle=  " + Vector3.Angle(p - P1_, planeNormal));
-
-            Vector3 pPlane = Rt.transpose.MultiplyVector(p);
-            DEBUG("\t[!!] Hit Plane at: " + pPlane);
-
-            pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
-            DEBUG("\t[!!C] Hit Plane at [wrt Origin]: " + pPlane);
-
-            //Debug.DrawLine(transform.position, pPlane , Color.red);
-        }
-        else DEBUG("[!!] No intersection");
-
-        // Project QUAD Shape wrt the Camera
-        int i = 0;
-        foreach (var P in Wall)
-        {
-            //DEBUG("\t\t [" + i + "]");
-            Vector3 imgPoint = Vector3.zero; //rayPosition;
-            imgPoint.x += P.x;
-            imgPoint.y += P.y;
-            imgPoint.z += f;  //500.0f;	//focal distance
-
-            rayDirection = imgPoint;
-
-            // DEBUG("\t >Plane point= \t " + planePoint );
-            // DEBUG("\t >Plane normal= \t " + planeNormal );
-            // DEBUG("\t >Ray origin= \t " + rayPosition );
-            // DEBUG("\t >Ray direction= \t " + rayDirection );
-
-            float denominator = Vector3.Dot(rayDirection, planeNormal);
-
-            if (denominator > 0.000001f)
+            // But there's a chance that the line doesn't intersect with the plane, and we can check this by first
+            // calculating the denominator and see if it's not small. 
+            // We are also checking that the denominator is positive or we are looking in the opposite direction
+            float denominator_ = Vector3.Dot(rayDirection, planeNormal);
+            if (denominator_ > 0.000001f)
             {
                 //The distance to the plane
-                float rayDistance = Vector3.Dot(planePoint - rayPosition, planeNormal) / denominator;
+                float rayDistance = Vector3.Dot(planePoint - rayPosition, planeNormal) / denominator_;
 
                 //Where the ray intersects with a plane
                 Vector3 p = rayPosition + rayDirection * rayDistance; //Hit wrt Camera
+                DEBUG("\t[!!] Hit at [wrt Camera]: " + p);
+                DEBUG("\t\t Hit_angle=  " + Vector3.Angle(p - P1_, planeNormal));
 
-                //DEBUG("\t[!!] Hit at [wrt Camera]=  " + p );
-                //DEBUG("\t\t Hit_angle=  " + Vector3.Angle( p - P1_ , planeNormal) );
+                Vector3 pPlane = Rt.transpose.MultiplyVector(p);
+                DEBUG("\t[!!] Hit Plane at: " + pPlane);
 
-                //Vector3 pPlane = Rt.transpose.MultiplyVector( p );	
-                //DEBUG("\t[!!] Hit Plane at =  " + pPlane );
+                pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
+                DEBUG("\t[!!C] Hit Plane at [wrt Origin]: " + pPlane);
 
-                Vector3 pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
-
-                //Vector3 pPlane = Rt.transpose.MultiplyVector( p ) + this.transform.position; //Hit wrt Plane
-                //pPlane = Rt.transpose.MultiplyVector( p ); //Hit wrt Plane
-                //pPlane += transform.position;
-
-                DEBUG("\t[!!C_" + i + "] Hit Plane at =  " + pPlane);
-
-                if (DRAW_QUAD)
-                {
-                    if (DRAW_LINES)
-                        //Debug.DrawLine(transform.position, pPlane , Color.yellow);
-                        Debug.DrawLine(transform.position, pPlane, Color.magenta);
-
-                    line.enabled = true;
-                    line.SetColors(quadColor, quadColor);
-                    //line.SetPosition( i , pPlane );
-                    line.SetPosition(i, new Vector3(pPlane.x, pPlane.y, -10.0f));
-                }
-                else line.enabled = false;
+                Debug.DrawLine(transform.position, pPlane, Color.red);
             }
-            //else DEBUG("No intersection");
-            i++;
+            else DEBUG("[!!] No intersection");
         }
 
-
         /////////////////////////////////////////
-        ///Project TRIANGLE Shape wrt the Camera
+        // Project QUAD Shape wrt the Camera
         /////////////////////////////////////////
-        if (DRAW_TRI)
+        line.enabled = DRAW_QUAD;
+        if (DRAW_QUAD)
         {
-            triLine.enabled = true;
-            triLine.SetColors(triColor, triColor);
-            i = 0;
-            foreach (var P in triShape)
+            line.startColor = line.endColor = quadColor;
+            line.startWidth = line.endWidth = lineRendererWidth;
+            int i = 0;
+            foreach (var P in Wall)
             {
-                //DEBUG("\t\t [" + i + "]");
-                Vector3 imgPoint = Vector3.zero; //rayPosition;
-                imgPoint.x += P.x;
-                imgPoint.y += P.y;
-                imgPoint.z += f;  //500.0f;	//focal distance
-
-                rayDirection = imgPoint;
-
-                //DEBUG("\t >Plane point= \t " + planePoint );
-                //DEBUG("\t >Plane normal= \t " + planeNormal );
-                //DEBUG("\t >Ray origin= \t " + rayPosition );
-                //DEBUG("\t >Ray direction= \t " + rayDirection );
-
-                float denominator = Vector3.Dot(rayDirection, planeNormal);
-
-                if (denominator > 0.000001f)
-                {
-                    //The distance to the plane
-                    float rayDistance = Vector3.Dot(planePoint - rayPosition, planeNormal) / denominator;
-
-                    //Where the ray intersects with a plane
-                    Vector3 p = rayPosition + rayDirection * rayDistance; //Hit wrt Camera
-
-                    //DEBUG("\t[!!] Hit at [wrt Camera]=  " + p );
-                    //DEBUG("\t\t Hit_angle=  " + Vector3.Angle( p - P1_ , planeNormal) );
-
-                    //Vector3 pPlane = Rt.transpose.MultiplyVector( p );	
-                    //DEBUG("\t[!!] Hit Plane at =  " + pPlane );
-
-                    Vector3 pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
-
-                    //Vector3 pPlane = Rt.transpose.MultiplyVector( p ) + this.transform.position; //Hit wrt Plane
-                    //pPlane = Rt.transpose.MultiplyVector( p ); //Hit wrt Plane
-                    //pPlane += transform.position;
-
-                    //DEBUG("\t[!!C_"+i+"] Hit Plane at =  " + pPlane );
-                    if (DRAW_LINES)
-                        Debug.DrawLine(transform.position, pPlane, triColor);
-
-                    triLine.SetPosition(i, new Vector3(pPlane.x, pPlane.y, -10.0f));
-
-                }
-                //else DEBUG("No intersection");
-                i++;
-            }
-        }
-        else triLine.enabled = false;
-
-
-        /////////////////////////////////////////////////////////
-        // Project POLYGON Shape wrt the Camera
-        /////////////////////////////////////////////////////////
-        if (DRAW_POLY)
-        {
-            //Wall points wrt origin
-            Vector3[] CROSS = new[] {
-                new Vector3(    0.0f,  250.0f, 0.0f),
-                new Vector3( -250.0f,    0.0f, 0.0f),
-                new Vector3(    0.0f, -250.0f, 0.0f),
-                new Vector3(  250.0f,    0.0f, 0.0f),
-            };
-
-            //Limit size based on focal distance
-            ///Debug.DrawLine( this.transform.position, new Vector3(-250,250,0) , Color.green);
-            DEBUG("FocalDist= " + f);
-
-            float MIN = Mathf.Infinity;
-
-            for (int k = 0; k < 4; k++)
-            {
-                Debug.DrawLine(this.transform.position, Wall[k] * 5, Color.green);
-
-                Vector3 P1 = -Rt.MultiplyVector(transform.position - Wall[k] * 5);
-                DEBUG("\t->P1[" + k + "]= " + P1);
-
-                float u1 = (f * P1.x) / P1.z;
-                float v1 = (f * P1.y) / P1.z;
-                DEBUG("1-(u,v)= " + u1 + " , " + v1);
-
-                Vector3 P2 = -Rt.MultiplyVector(transform.position - Wall[(k + 1) % 4] * 5);
-                DEBUG("\t->P2[" + k + "]= " + P2);
-
-                float u2 = (f * P2.x) / P2.z;
-                float v2 = (f * P2.y) / P2.z;
-                DEBUG("2-(u,v)= " + u2 + " , " + v2);
-
-                // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-                // simplified since p=(x0,y0)=(0,0)
-                float distToEdge = Mathf.Abs(u2 * v1 - v2 * u1) / Mathf.Sqrt((v2 - v1) * (v2 - v1) + (u2 - u1) * (u2 - u1));
-
-                if (distToEdge < MIN) MIN = distToEdge;
-
-                //Vector3 c_W1_ = Rt.transpose.MultiplyVector( W1_ ) + this.transform.position; //Hit wrt Plane 
-                //DEBUG("\t->t_W["+k+"]= " + c_W1_ );
-            }
-
-            // Debug.DrawLine( new Vector3(xmin,ymax,0), new Vector3(xmin,ymin,0), Color.red  );
-            // Debug.DrawLine( new Vector3(xmin,ymin,0), new Vector3(xmax,ymin,0), Color.red  );
-            // Debug.DrawLine( new Vector3(xmax,ymin,0), new Vector3(xmax,ymax,0), Color.red  );
-            // Debug.DrawLine( new Vector3(xmax,ymax,0), new Vector3(xmin,ymax,0), Color.red  );
-
-            // polyLine.positionCount = 4;
-            // polyLine.SetPosition( 0 , new Vector3(xmin,ymax, -1.0f ) );
-            // polyLine.SetPosition( 1 , new Vector3(xmin,ymin, -1.0f ) );
-            // polyLine.SetPosition( 2 , new Vector3(xmax,ymin, -1.0f ) );
-            // polyLine.SetPosition( 3 , new Vector3(xmax,ymax, -1.0f ) );
-
-            float limit = MIN;
-            DEBUG("LimitMin= " + MIN);
-
-            polyLine.enabled = true;
-            polyLine.positionCount = Mathf.Abs(polyVerts);
-            polyLine.SetColors(polyColor, polyColor);
-
-            float angleStep = (Mathf.PI * 2.0f) / polyVerts;
-            for (int j = 0; j < polyVerts; j++)
-            {
-                //DEBUG("\t\t [" + i + "]");
-                float angle = j * angleStep;
-
-                //Limit size based on focal distance
-                float Px, Py;
-                if (LIMIT_RADIUS)
-                {
-                    Px = limit * Mathf.Cos(angle);
-                    Py = limit * Mathf.Sin(angle);
-                }
-                else
-                {
-                    Px = polyRadius * Mathf.Cos(angle);
-                    Py = polyRadius * Mathf.Sin(angle);
-                }
-
-                Vector3 imgPoint = Vector3.zero; //rayPosition;
-                imgPoint.x += Px;
-                imgPoint.y += Py;
-                imgPoint.z += f;  //focal distance
-
-                rayDirection = imgPoint;
+                // DEBUG("\t QUAD[" + i + "]");
+                Vector3 rayDirection = Vector3.zero;
+                rayDirection.x = P.x;
+                rayDirection.y = P.y;
+                rayDirection.z = f;    //focal distance
 
                 // DEBUG("\t >Plane point= \t " + planePoint );
                 // DEBUG("\t >Plane normal= \t " + planeNormal );
@@ -501,7 +286,6 @@ public class rayTracer : MonoBehaviour
                 // DEBUG("\t >Ray direction= \t " + rayDirection );
 
                 float denominator = Vector3.Dot(rayDirection, planeNormal);
-
                 if (denominator > 0.000001f)
                 {
                     //The distance to the plane
@@ -509,52 +293,194 @@ public class rayTracer : MonoBehaviour
 
                     //Where the ray intersects with a plane
                     Vector3 p = rayPosition + rayDirection * rayDistance; //Hit wrt Camera
-
                     //DEBUG("\t[!!] Hit at [wrt Camera]=  " + p );
                     //DEBUG("\t\t Hit_angle=  " + Vector3.Angle( p - P1_ , planeNormal) );
 
-                    //Vector3 pPlane = Rt.transpose.MultiplyVector( p );	
-                    //DEBUG("\t[!!] Hit Plane at =  " + pPlane );
-
                     Vector3 pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
+                    DEBUG("\t[C_" + i + "] Hit Plane at =  " + pPlane);
 
-                    //Vector3 pPlane = Rt.transpose.MultiplyVector( p ) + this.transform.position; //Hit wrt Plane
-                    //pPlane = Rt.transpose.MultiplyVector( p ); //Hit wrt Plane
-                    //pPlane += transform.position;
+                    line.SetPosition(i, new Vector3(pPlane.x, pPlane.y, lineRendererOffset));
 
-                    //DEBUG("\t[POLY_"+j+"] Hit Plane at =  " + pPlane );
-                    if (DRAW_LINES)
-                        Debug.DrawLine(transform.position, pPlane, polyColor);
-
-                    polyLine.SetPosition(j, new Vector3(pPlane.x, pPlane.y, -1.0f));
-
+                    if (DRAW_LINES) Debug.DrawLine(transform.position, pPlane, quadColor);
                 }
                 //else DEBUG("No intersection");
-
+                i++;
             }
         }
-        else polyLine.enabled = false;
 
+
+        /////////////////////////////////////////
+        // Project TRIANGLE Shape wrt the Camera
+        /////////////////////////////////////////
+        triLine.enabled = DRAW_TRI;
+        if (DRAW_TRI)
+        {
+            triLine.startColor = triLine.endColor = triColor;
+            triLine.startWidth = triLine.endWidth = lineRendererWidth;
+            int i = 0;
+            foreach (var P in triShape)
+            {
+                // DEBUG("\t\t TRI[" + i + "]");
+                Vector3 rayDirection = Vector3.zero;
+                rayDirection.x = P.x;
+                rayDirection.y = P.y;
+                rayDirection.z = f;    //focal distance
+
+                // DEBUG("\t >Plane point= \t " + planePoint);
+                // DEBUG("\t >Plane normal= \t " + planeNormal);
+                // DEBUG("\t >Ray origin= \t " + rayPosition);
+                // DEBUG("\t >Ray direction= \t " + rayDirection);
+
+                float denominator = Vector3.Dot(rayDirection, planeNormal);
+
+                if (denominator > 0.000001f)
+                {
+                    // The distance to the plane
+                    float rayDistance = Vector3.Dot(planePoint - rayPosition, planeNormal) / denominator;
+
+                    // Where the ray intersects with a plane
+                    Vector3 p = rayPosition + rayDirection * rayDistance; //Hit wrt Camera
+                    //DEBUG("\t[!!] Hit at [wrt Camera]=  " + p );
+                    //DEBUG("\t\t Hit_angle=  " + Vector3.Angle( p - P1_ , planeNormal) );
+
+                    Vector3 pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
+                    //DEBUG("\t[C_" + i + "] Hit Plane at =  " + pPlane);
+
+                    triLine.SetPosition(i, new Vector3(pPlane.x, pPlane.y, lineRendererOffset));
+
+                    if (DRAW_LINES) Debug.DrawLine(transform.position, pPlane, triColor);
+                }
+                //else DEBUG("No intersection");
+                i++;
+            }
+        }
+
+
+        /////////////////////////////////////////////////////////
+        // Project POLYGON Shape wrt the Camera
+        /////////////////////////////////////////////////////////
+        polyLine.enabled = DRAW_POLY;
+        if (DRAW_POLY)
+        {
+            //Wall points wrt origin // FIXME : is this needed?
+            // Vector3[] CROSS = new[] {
+            //     new Vector3(    0.0f,  250.0f, 0.0f),
+            //     new Vector3( -250.0f,    0.0f, 0.0f),
+            //     new Vector3(    0.0f, -250.0f, 0.0f),
+            //     new Vector3(  250.0f,    0.0f, 0.0f),
+            // };
+
+            //Limit radius size based on focal distance
+            if (LIMIT_RADIUS)
+            {
+                DEBUG("FocalDist= " + f);
+
+                float minRadius = Mathf.Infinity;
+
+                for (int k = 0; k < 4; k++)
+                {
+                    Debug.DrawLine(this.transform.position, Wall[k] * 5, camColor); // FIXME : move this somewhere else so it always executes and fix the scale issue
+
+                    Vector3 P1 = -Rt.MultiplyVector(transform.position - Wall[k] * 5);
+                    DEBUG("\t->P1[" + k + "]= " + P1);
+
+                    float u1 = (f * P1.x) / P1.z;
+                    float v1 = (f * P1.y) / P1.z;
+                    DEBUG("1-(u,v)= " + u1 + " , " + v1);
+
+                    Vector3 P2 = -Rt.MultiplyVector(transform.position - Wall[(k + 1) % 4] * 5);
+                    DEBUG("\t->P2[" + k + "]= " + P2);
+
+                    float u2 = (f * P2.x) / P2.z;
+                    float v2 = (f * P2.y) / P2.z;
+                    DEBUG("2-(u,v)= " + u2 + " , " + v2);
+
+                    // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+                    // simplified since p=(x0,y0)=(0,0)
+                    float distToEdge = Mathf.Abs(u2 * v1 - v2 * u1) / Mathf.Sqrt((v2 - v1) * (v2 - v1) + (u2 - u1) * (u2 - u1));
+                    if (distToEdge < minRadius) minRadius = distToEdge;
+
+                    //Vector3 c_W1_ = Rt.transpose.MultiplyVector( W1_ ) + this.transform.position; //Hit wrt Plane 
+                    //DEBUG("\t->t_W["+k+"]= " + c_W1_ );
+                }
+
+                // Debug.DrawLine( new Vector3(xmin,ymax,0), new Vector3(xmin,ymin,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmin,ymin,0), new Vector3(xmax,ymin,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmax,ymin,0), new Vector3(xmax,ymax,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmax,ymax,0), new Vector3(xmin,ymax,0), Color.red  );
+
+                // polyLine.positionCount = 4;
+                // polyLine.SetPosition( 0 , new Vector3(xmin,ymax, -1.0f ) );
+                // polyLine.SetPosition( 1 , new Vector3(xmin,ymin, -1.0f ) );
+                // polyLine.SetPosition( 2 , new Vector3(xmax,ymin, -1.0f ) );
+                // polyLine.SetPosition( 3 , new Vector3(xmax,ymax, -1.0f ) );
+
+                polyRadius = (int)minRadius;
+                DEBUG("LimitMin= " + minRadius);
+            }
+
+            polyLine.positionCount = Mathf.Abs(polyVerts);
+            polyLine.startColor = polyLine.endColor = polyColor;
+            polyLine.startWidth = polyLine.endWidth = lineRendererWidth;
+
+            float angleStep = (Mathf.PI * 2.0f) / polyVerts;
+            for (int j = 0; j < polyVerts; j++)
+            {
+                //DEBUG("\t\t [" + i + "]");
+                float angle = j * angleStep;
+                //Limit size based either on polyRadius input or focal distance
+                float Px = polyRadius * Mathf.Cos(angle);
+                float Py = polyRadius * Mathf.Sin(angle);
+
+                Vector3 rayDirection = Vector3.zero;
+                rayDirection.x = Px;
+                rayDirection.y = Py;
+                rayDirection.z = f;    //focal distance
+
+                // DEBUG("\t >Plane point= \t " + planePoint );
+                // DEBUG("\t >Plane normal= \t " + planeNormal );
+                // DEBUG("\t >Ray origin= \t " + rayPosition );
+                // DEBUG("\t >Ray direction= \t " + rayDirection );
+
+                float denominator = Vector3.Dot(rayDirection, planeNormal);
+                if (denominator > 0.000001f)
+                {
+                    //The distance to the plane
+                    float rayDistance = Vector3.Dot(planePoint - rayPosition, planeNormal) / denominator;
+
+                    //Where the ray intersects with a plane
+                    Vector3 p = rayPosition + rayDirection * rayDistance; //Hit wrt Camera
+                    //DEBUG("\t[!!] Hit at [wrt Camera]=  " + p );
+                    //DEBUG("\t\t Hit_angle=  " + Vector3.Angle( p - P1_ , planeNormal) );
+
+                    Vector3 pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
+                    // DEBUG("\t[POLY_" + j + "] Hit Plane at =  " + pPlane);
+
+                    polyLine.SetPosition(j, new Vector3(pPlane.x, pPlane.y, lineRendererOffset));
+
+                    if (DRAW_LINES) Debug.DrawLine(transform.position, pPlane, polyColor);
+                }
+                //else DEBUG("No intersection");
+            }
+        }
 
 
         /////////////////////////////////////////////////////////
         ///Project SVG Shape wrt the Camera
         /////////////////////////////////////////////////////////
+        // shapeLine.enabled = DRAW_SHAPE;
         // if (DRAW_SHAPE)
         // {
-        //     shapeLine.enabled = true;
         //     shapeLine.positionCount = shape.Length;
         //     shapeLine.SetColors(shapeColor, shapeColor);
 
         //     for (int j = 0; j < shape.Length; j++)
         //     {
         //         //DEBUG("\t\t [" + i + "]");
-        //         Vector3 imgPoint = Vector3.zero; //rayPosition;
-        //         imgPoint.x += shape[j].x;
-        //         imgPoint.y += shape[j].y;
-        //         imgPoint.z += f;  //500.0f;	//focal distance
-
-        //         rayDirection = imgPoint;
+        //         Vector3 rayDirection = Vector3.zero;
+        //         rayDirection.x = shape[j].x;
+        //         rayDirection.y = shape[j].y;
+        //         rayDirection.z = f;     //focal distance
 
         //         float denominator = Vector3.Dot(rayDirection, planeNormal);
         //         if (denominator > 0.000001f)
@@ -567,16 +493,13 @@ public class rayTracer : MonoBehaviour
         //             Vector3 pPlane = Rt.transpose.MultiplyVector(p) + this.transform.position; //Hit wrt Plane
 
         //             //DEBUG("\t[Shape_"+j+"] Hit Plane at:   " + pPlane );
-        //             if (DRAW_LINES)
-        //                 Debug.DrawLine(transform.position, pPlane, shapeColor);
+        //             if (DRAW_LINES) Debug.DrawLine(transform.position, pPlane, shapeColor);
 
         //             shapeLine.SetPosition(j, new Vector3(pPlane.x, pPlane.y, -10.0f));
         //         }
         //         //else DEBUG("No intersection");
         //     }
         // }
-        // else shapeLine.enabled = false;
-
 
 
         // Translate upwards
@@ -584,6 +507,4 @@ public class rayTracer : MonoBehaviour
     }
 
 
-
 }
-

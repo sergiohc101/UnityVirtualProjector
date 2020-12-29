@@ -3,7 +3,7 @@
 # [!] ...better migrate this list to some other github feature request tool
 #
 # Bonzolabs
-# Last update : 27/Dec/2020
+# Last update : 29/Dec/2020
 #
 
 >>> Implement scale for projected QUAD
@@ -17,9 +17,9 @@
 
 >>> Make possible to handle SVG files for the line renderer (some code already exists)
 
->>> Implement the multi plane logic (:
+>>> Implement the multi plane logic!
     (this shall detect when a projected point is outside the plane limit, 
-    find the nearest point in the plane & handle plane overlaping! :S )
+    find the nearest point in the plane & handle plane overlaping!)
 
 >>> Implement export mechanism to get an output file with the plane points ready for tracing
 

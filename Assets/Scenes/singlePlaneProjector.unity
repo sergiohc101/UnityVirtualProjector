@@ -299,6 +299,11 @@ Prefab:
       propertyPath: polyVerts
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: lineRendererOffset
+      value: -1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
   m_IsPrefabParent: 0
