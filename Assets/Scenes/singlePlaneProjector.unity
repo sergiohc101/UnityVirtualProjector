@@ -267,42 +267,43 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
-      propertyPath: MOVE_CAM
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1185576131111490, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: LIMIT_RADIUS
+      propertyPath: DEBUG_LOGS
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
-      propertyPath: polyRadius
-      value: 120
+      propertyPath: MOVE_CAM
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
-      propertyPath: textAsset
-      value: 
-      objectReference: {fileID: 4900000, guid: 68f0b1ee1521e4a48a76cb584bdf9954, type: 3}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: f
-      value: 300
+      propertyPath: DRAW_LINES
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
-      propertyPath: polyVerts
-      value: 5
+      propertyPath: lineRendererWidth
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
       propertyPath: lineRendererOffset
       value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: DRAW_QUAD
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: DRAW_TRI
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: DRAW_POLY
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
