@@ -141,14 +141,18 @@ MonoBehaviour:
   MOVE_CAM: 1
   DRAW_LINES: 1
   camColor: {r: 0.07058824, g: 0.60784316, b: 0.95686275, a: 1}
-  lineRendererWidth: 10
+  lineRendererWidth: 5
   lineRendererOffset: -1
+  camLookAt: {x: 0, y: 0, z: 0}
   DRAW_QUAD: 1
   quadColor: {r: 1, g: 0, b: 1, a: 1}
+  QUAD_OFFSET: {x: 0, y: 0}
   DRAW_TRI: 0
   triColor: {r: 0, g: 1, b: 1, a: 1}
+  TRI_OFFSET: {x: 0, y: 0}
   DRAW_POLY: 1
   polyColor: {r: 1, g: 0, b: 0, a: 1}
+  POLY_OFFSET: {x: 0, y: 0}
   LIMIT_RADIUS: 0
   polyVerts: 5
   polyRadius: 120

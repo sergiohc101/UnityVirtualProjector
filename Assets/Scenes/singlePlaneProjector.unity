@@ -265,46 +265,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 2
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: DEBUG_LOGS
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: MOVE_CAM
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: DRAW_LINES
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: lineRendererWidth
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: lineRendererOffset
-      value: -1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: DRAW_QUAD
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: DRAW_TRI
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
-      propertyPath: DRAW_POLY
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
   m_IsPrefabParent: 0
@@ -386,7 +346,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1232343302}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 1, z: 1.3999996}
+  m_LocalPosition: {x: 0, y: 0, z: 1}
   m_LocalScale: {x: 50, y: 1, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
