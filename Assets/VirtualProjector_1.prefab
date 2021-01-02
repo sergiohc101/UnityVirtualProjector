@@ -19,7 +19,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4729140988283718}
-  - component: {fileID: 114510013014743922}
+  - component: {fileID: 114632829293187806}
   - component: {fileID: 20356224661064630}
   - component: {fileID: 92894644676492074}
   - component: {fileID: 33790460001745834}
@@ -126,7 +126,7 @@ Behaviour:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1185576131111490}
   m_Enabled: 1
---- !u!114 &114510013014743922
+--- !u!114 &114632829293187806
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -134,7 +134,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1185576131111490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60765c45339314f748204cb9664154ac, type: 3}
+  m_Script: {fileID: 11500000, guid: e9511572bc8a245e69f99a5107b5f51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   DEBUG_LOGS: 0
@@ -154,11 +154,11 @@ MonoBehaviour:
   polyColor: {r: 1, g: 0, b: 0, a: 1}
   POLY_OFFSET: {x: 0, y: 0}
   LIMIT_RADIUS: 0
-  polyVerts: 5
-  polyRadius: 120
-  f: 300
+  polyVerts: 6
+  polyRadius: 100
+  f: 350
   u: 640
   v: 480
   timeToCompleteCircle: 10
-  radius: 500
+  radius: 300
   currentAngleDeg: 0

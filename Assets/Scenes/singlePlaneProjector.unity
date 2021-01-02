@@ -149,7 +149,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &565267378
 Prefab:
@@ -188,15 +188,13 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: DRAW_LINES
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: MOVE_CAM
       value: 1
       objectReference: {fileID: 0}
@@ -204,18 +202,15 @@ Prefab:
       propertyPath: m_Name
       value: VirtualProjector_2
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: camColor.r
       value: 0.9117647
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: camColor.g
       value: 0.5229239
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: camColor.b
       value: 0.78840816
       objectReference: {fileID: 0}
@@ -226,7 +221,7 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
   m_IsPrefabParent: 0
---- !u!1001 &1184183865
+--- !u!1001 &799582107
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -247,15 +242,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.w
@@ -263,7 +258,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
@@ -350,7 +345,7 @@ Transform:
   m_LocalScale: {x: 50, y: 1, z: 50}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!1001 &1545249192
 Prefab:
@@ -389,15 +384,13 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_RootOrder
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: DRAW_LINES
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: MOVE_CAM
       value: 1
       objectReference: {fileID: 0}
@@ -409,24 +402,49 @@ Prefab:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: camColor.r
       value: 0.4280926
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: camColor.g
       value: 0.78676474
       objectReference: {fileID: 0}
-    - target: {fileID: 114510013014743922, guid: 50cf9823537d6448dadfc7ea646ba11b,
-        type: 2}
+    - target: {fileID: 0}
       propertyPath: camColor.b
       value: 0.53445745
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1741190907
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1741190908}
+  m_Layer: 0
+  m_Name: planeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1741190908
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1741190907}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -193.04321, y: -35.106384, z: -170.9212}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2139246579
 GameObject:
   m_ObjectHideFlags: 0

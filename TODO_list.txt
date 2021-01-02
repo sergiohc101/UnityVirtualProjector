@@ -6,12 +6,9 @@
 # Last update : 29/Dec/2020
 #
 
->>> raytracer REFACTOR!
 
 >>> Remove scale from transform 
 
->>> Separate the line renderer to a different class
-    (the linerenderer gameobjects should be nested somewhere)
 
 >>> Make possible to handle SVG files for the line renderer (some code already exists)
 
@@ -29,3 +26,5 @@
 
 // Done
 >>> Implement lookat vector for camera (currently always origin)
+>>> Separate the line renderer to a different class
+    (the linerenderer gameobjects should be nested somewhere)
