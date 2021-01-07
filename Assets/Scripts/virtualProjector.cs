@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class virtualProjector : MonoBehaviour
 {
-    //[Header("Camera")]
-    public bool DEBUG_LOGS = false;
     public bool MOVE_CAM = true;
     public bool DRAW_LINES = true;
     public Color camColor;
@@ -34,6 +32,7 @@ public class virtualProjector : MonoBehaviour
     // public TextAsset textAsset;
     // Vector3[] shape;
 
+    [Header("Projector Properties")]
     public float f = 1000.0f;
     public float u = 640.0f;
     public float v = 480.0f;
@@ -42,7 +41,7 @@ public class virtualProjector : MonoBehaviour
     public float[,] K = new float[3, 3];
 
     public float timeToCompleteCircle = 5.0f; // in seconds
-    public float radius = 300;
+    public float camTrajectoryRadius = 300;
     public float currentAngleDeg;
 
 
@@ -84,6 +83,7 @@ public class virtualProjector : MonoBehaviour
         new Vector3( 0.0f,      140.0f, 0.0f)
     };
 
+    public bool DEBUG_LOGS = false;
     void DEBUG(string str) { if (DEBUG_LOGS) Debug.Log(str); }
 
     // Initialization
@@ -181,8 +181,8 @@ public class virtualProjector : MonoBehaviour
             currentAngleDeg += Time.deltaTime * camSpeed;
             if (currentAngleDeg >= Mathf.PI * 2.0f * Mathf.Rad2Deg) currentAngleDeg = 0.0f;
 
-            float Cx = radius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
-            float Cy = radius * Mathf.Sin(currentAngleDeg * Mathf.Deg2Rad);
+            float Cx = camTrajectoryRadius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
+            float Cy = camTrajectoryRadius * Mathf.Sin(currentAngleDeg * Mathf.Deg2Rad);
             transform.position = new Vector3(Cx, Cy, transform.position.z);
         }
         //Projector looks at plane origin after moving
@@ -292,7 +292,7 @@ public class virtualProjector : MonoBehaviour
         polyLine.enabled = DRAW_POLY;
         if (DRAW_POLY)
         {
-            // Limit radius size based on focal distance
+            // Limit polygon radius size based on focal distance
             // This is done by finding the distance to the nearest point 
             // for each line that every pair of vertices defines
             if (LIMIT_RADIUS)

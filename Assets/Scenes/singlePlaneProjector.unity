@@ -229,34 +229,6 @@ Prefab:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: -700
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
@@ -425,6 +397,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1741190908}
+  - component: {fileID: 1741190909}
   m_Layer: 0
   m_Name: planeManager
   m_TagString: Untagged
@@ -445,6 +418,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1741190909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1741190907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b19c7982fe0064d93aa97e1abe358d5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2139246579
 GameObject:
   m_ObjectHideFlags: 0
