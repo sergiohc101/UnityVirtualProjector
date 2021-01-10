@@ -278,11 +278,13 @@ public class virtualProjector : MonoBehaviour
             triLine.startWidth = triLine.endWidth = lineRendererWidth;
             rayTracer raytracer = new rayTracer(Rt, DEBUG_LOGS);
             raytracer.setup(planePoint, planeNormal, rayPosition);
+			Vector3[] TRIShape = new Vector3[triShape.Length];
+
             for (int i = 0; i < triShape.Length; i++)
             {
-                triShape[i] = new Vector3(TRI_OFFSET.x, TRI_OFFSET.y, f);
+				TRIShape[i] = triShape[i] + new Vector3(TRI_OFFSET.x, TRI_OFFSET.y, f);
             }
-            raytracer.traceShape(triShape, transform.position, triLine, lineRendererOffset, DRAW_LINES);
+			raytracer.traceShape(TRIShape, transform.position, triLine, lineRendererOffset, DRAW_LINES);
         }
 
 
