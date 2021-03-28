@@ -76,6 +76,7 @@ public class test_Ray : MonoBehaviour
             Debug.Log("Plane position: " + planeTrans.position);
             //Debug.Log("Plane : " + planeTrans.);//
             Debug.Log("Ray: " + p);
+            Debug.Log("this: " + l_0);
 
             //Display the ray with a line renderer
             line.SetPosition(0, p);
