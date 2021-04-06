@@ -8,6 +8,8 @@ public class test_ray2 : MonoBehaviour
 
     static bool ContainsPoint(Vector3[] polyPoints, Vector3 p)
     {
+        //Debug.Log("----->Hitting=" + p);
+
         var j = polyPoints.Length - 1;
         var inside = false;
         for (int i = 0; i < polyPoints.Length; j = i++)
@@ -18,10 +20,19 @@ public class test_ray2 : MonoBehaviour
                 (p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y) + pi.x))
                 inside = !inside;
         }
+
+        //Debug.Log("----- isInside= " + inside);
         return inside;
     }
 
 
+    static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
+    {
+        Vector3 dir = point - pivot; // get point direction relative to pivot
+        dir = Quaternion.Euler(angles) * dir; // rotate it
+        point = dir + pivot; // calculate rotated point
+        return point; // return it
+    }
 
 
     //var plane : Plane = new Plane(Vector3.up, Vector3.zero);;
@@ -69,16 +80,11 @@ public class test_ray2 : MonoBehaviour
 
                     GameObject planeManager = GameObject.Find("planeManager");
                     GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    //go.transform.parent = this.transform;
 
                     go.transform.parent = planeManager.transform;
                     go.transform.position = hitPoint;
                     go.transform.transform.rotation = wall.transform.rotation;
                     go.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
-
-                    Debug.Log("hitPoint[C]: " + (go.transform.position));
-
-                    //go.transform.LookAt(this.transform);
 
                     //Debug.Log("RAY>>: origin: " + ray.origin + " // dir: " +  (ray.direction * ent));
 
@@ -94,39 +100,51 @@ public class test_ray2 : MonoBehaviour
 
                     //Wall points wrt to its origin
                     Vector3[] wallPts = new[] {
-                        new Vector3(  250.0f,  250.0f, 0.0f) + wall.transform.position,
-                        new Vector3( -250.0f,  250.0f, 0.0f) + wall.transform.position,
-                        new Vector3( -250.0f, -250.0f, 0.0f) + wall.transform.position,
-                        new Vector3(  250.0f, -250.0f, 0.0f) + wall.transform.position,
+                        new Vector3(  250.0f,  250.0f, 0.0f),
+                        new Vector3( -250.0f,  250.0f, 0.0f),
+                        new Vector3( -250.0f, -250.0f, 0.0f),
+                        new Vector3(  250.0f, -250.0f, 0.0f),
                     };
 
                     // Compute plane normal wrt the camera
                     //Vector3 P1_ = -Rt.MultiplyVector(wall.transform.position);
-                    Vector3 t = Rt.MultiplyVector(wall.transform.position); // / 50.0f;
+                    Debug.Log("Plane_hitPoint: " + (hitPoint - wall.transform.position));
 
-                    Debug.Log("Point_in_plane: " + t);
+                    Vector3 t = Rt.MultiplyPoint3x4(hitPoint - wall.transform.position); // / 50.0f;
 
-                    Vector3 hitPointInPlane = t;
+                    Debug.Log("Hitpoint wrt to planeOrigin [t]:  " + t);
+
+                    Vector3 hitPointInPlane = RotatePointAroundPivot(
+                        t,
+                        Vector3.zero,
+                        new Vector3(-90.0f, 0.0f, 0.0f));
+
+                    Debug.Log("Point_on_Plane:  " + hitPointInPlane);
 
                     bool wallHit = ContainsPoint(wallPts, hitPointInPlane);
-
-                    // FIXME : transform wallpoints into planeCoordinates , reverse function to vector
-
 
 
                     if (i == 0 && wallHit)
                     {
                         go.GetComponent<Renderer>().material.color = Color.green;
+                        Debug.DrawRay(ray.origin, wall.position, Color.green);
+
                     }
                     else if (i == 1 && wallHit)
                     {
-                        //go.transform.parent = wall.transform;
                         go.GetComponent<Renderer>().material.color = Color.blue;
+                        Debug.DrawRay(ray.origin, wall.position, Color.blue);
+
                     }
                     else
                     {
+                        //go.SetActive(false);
+                        //Destroy(go);
+
+                        go.name = "Miss";
                         go.GetComponent<Renderer>().material.color = Color.red;
-                        Debug.DrawRay(ray.origin, ray.direction * ent, Color.red);
+
+                        Debug.DrawRay(ray.origin, ray.direction * ent, Color.red);  // FIXME
                     }
 
 
@@ -135,6 +153,9 @@ public class test_ray2 : MonoBehaviour
                 {
                     Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
                     Debug.Log("No intersection");
+
+                    //plane.ClosestPointOnPlane() is available in newer SDKs
+
                 }
             }
 

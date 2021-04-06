@@ -5,6 +5,8 @@ using UnityEngine;
 public class planeManager : MonoBehaviour
 {
 
+    public bool hideMissedHits;
+
     // Use this for initialization
     void Start()
     {
@@ -14,6 +16,11 @@ public class planeManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Transform[] allHits = GetComponentsInChildren<Transform>(true);
+        foreach (Transform hit in allHits)
+        {
+            hit.gameObject.SetActive(!(hit.name == "Miss") || !hideMissedHits);
+        }
 
     }
 }
