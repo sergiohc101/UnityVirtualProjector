@@ -5,7 +5,7 @@ using UnityEngine;
 public class test_ray2 : MonoBehaviour
 {
 
-
+    // This is never called, trust no one
     static bool ContainsPoint(Vector3[] polyPoints, Vector3 p)
     {
         //Debug.Log("----->Hitting=" + p);
@@ -21,7 +21,13 @@ public class test_ray2 : MonoBehaviour
                 inside = !inside;
         }
 
-        //Debug.Log("----- isInside= " + inside);
+        Bounds B = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1));
+        Vector3 result = B.ClosestPoint(p);
+
+        Debug.Log("----- resultClosestP= " + result);
+        Debug.Log("----- Contains= " + B.Contains(p));
+        Debug.Log("----- isInside= " + inside);
+
         return inside;
     }
 
@@ -35,9 +41,9 @@ public class test_ray2 : MonoBehaviour
     }
 
 
-    //var plane : Plane = new Plane(Vector3.up, Vector3.zero);;
     public Transform wall1;
     public Transform wall2;
+    public Transform wall3;
 
     public float ent = 0.0f;
     public float ent1 = 0.0f;
@@ -51,12 +57,13 @@ public class test_ray2 : MonoBehaviour
         {
             Ray ray = Camera.main.ScreenPointToRay(mousePos);
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 3; i++)
             {
                 //ent = 100.0f;
 
                 if (i == 0) wall = wall1;
-                else wall = wall2;
+                if (i == 1) wall = wall2;
+                if (i == 2) wall = wall3;
 
                 //Debug.Log("Hitting= " + wall.gameObject.name);
 
@@ -73,7 +80,7 @@ public class test_ray2 : MonoBehaviour
 
                     Vector3 hitPoint = ray.GetPoint(ent);
                     Debug.Log("Raycast hit Plane at distance: " + ent);
-                    Debug.Log("hitPoint: " + hitPoint);
+                    Debug.Log("hitPoint: " + hitPoint); // WRT to WORLD
 
                     if (i == 0) ent1 = ent;
                     else ent2 = ent;
@@ -121,7 +128,29 @@ public class test_ray2 : MonoBehaviour
 
                     Debug.Log("Point_on_Plane:  " + hitPointInPlane);
 
-                    bool wallHit = ContainsPoint(wallPts, hitPointInPlane);
+                    // bool wallHit = ContainsPoint(wallPts, hitPointInPlane);
+
+                    Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1));
+                    bool wallHit = wallBounds.Contains(hitPointInPlane);
+                    Vector3 result = wallBounds.ClosestPoint(hitPointInPlane);
+
+                    Vector3 rotatedResult = RotatePointAroundPivot(
+                        result,
+                        Vector3.zero,
+                        new Vector3(90.0f, 0.0f, 0.0f));
+
+                    Debug.Log("ClosestPoint(hitPointInPlane):  " + result);
+                    Debug.Log("ROT_ClosestPoint(hitPointInPlane):  " + rotatedResult);
+                    Vector3 closestPointForHitInWorld = Rt.transpose.MultiplyPoint3x4(rotatedResult);
+                    Debug.Log("closestPointForHitInWorld():  " + closestPointForHitInWorld);
+
+                    GameObject hitNear = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    hitNear.transform.parent = planeManager.transform;
+                    hitNear.transform.position = closestPointForHitInWorld;
+                    hitNear.name = "Nearest";
+                    hitNear.transform.localScale = new Vector3(50.0f, 50.0f, 50.0f);
+                    hitNear.GetComponent<Renderer>().material.color = Color.magenta;
+
 
 
                     if (i == 0 && wallHit)
@@ -136,11 +165,12 @@ public class test_ray2 : MonoBehaviour
                         Debug.DrawRay(ray.origin, wall.position, Color.blue);
 
                     }
+                    else if (i == 2 && wallHit)
+                    {
+                        go.GetComponent<Renderer>().material.color = Color.yellow;
+                    }
                     else
                     {
-                        //go.SetActive(false);
-                        //Destroy(go);
-
                         go.name = "Miss";
                         go.GetComponent<Renderer>().material.color = Color.red;
 

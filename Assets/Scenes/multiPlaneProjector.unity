@@ -411,6 +411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wall1: {fileID: 1232343306}
   wall2: {fileID: 1006142374}
+  wall3: {fileID: 1668225942}
   ent: 100
   ent1: 0
   ent2: 0
@@ -596,6 +597,11 @@ Prefab:
         type: 2}
       propertyPath: currentAngleDeg
       value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 20356224661064630, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: m_TargetDisplay
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
@@ -989,7 +995,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b19c7982fe0064d93aa97e1abe358d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideMissedHits: 0
+  hideMissedHits: 1
+  clear: 0
+  planes: []
+  generateFromFile: 0
 --- !u!1 &2139246579
 GameObject:
   m_ObjectHideFlags: 0
