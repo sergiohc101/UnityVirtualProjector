@@ -7,10 +7,11 @@
 #
 
 
->>> Remove scale from transform 
-
+>>> Remove scale from plane/cube transforms
 
 >>> Make possible to handle SVG files for the line renderer (some code already exists)
+    (Where to handle the svg shape logic ?? )
+    (How to handle several instances for the lineRenderers ?? )
 
 >>> Implement the multi plane logic!
     (this shall detect when a projected point is outside the plane limit, 
@@ -18,13 +19,12 @@
 
 >>> Implement export mechanism to get an output file with the plane points ready for tracing in planes
 
->>> Implement scale for projected QUAD
-
 >>> Investigate how to overlap the camera picture on the scene
  >> Make possible to input the Camera Extrinsics into the scene (check if its worth to input the rotation matrix)
 
 
 // Done
+>>> Implement scale for projected QUAD
 >>> Implement lookat vector for camera (currently always origin)
 >>> Separate the line renderer to a different class
     (the linerenderer gameobjects should be nested somewhere)
