@@ -37,7 +37,8 @@ public class multiPlaneManager : MonoBehaviour
             return;
         }
 
-
+        // FIXME : bool logic instead of list overwrite
+        // Hides missed hits
         Transform[] allHits = GetComponentsInChildren<Transform>(true);
         foreach (Transform hit in allHits)
         {
@@ -50,4 +51,28 @@ public class multiPlaneManager : MonoBehaviour
     {
         return Planes;
     }
+
+    // public void setShapeHits(string shapeName = "noname")
+    // {
+    //     //
+
+    // }
+
+    public void removeShapeHits(string shapeName)
+    {
+        Transform[] children = GetComponentsInChildren<Transform>(true);
+        foreach (var go in children)
+        {
+            if (go.name == "_hits_" + shapeName)
+            {
+                Debug.Log("Destroying children hits: " + go.name);
+                for (int k = go.childCount - 1; k > 0; k--)
+                {
+                    GameObject.Destroy(go.GetChild(k).gameObject);
+                }
+                break;
+            }
+        }
+    }
+
 }

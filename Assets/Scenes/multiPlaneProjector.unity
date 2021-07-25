@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3461fb92b5c764f0d8ffc0c1415b64c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textAsset: {fileID: 4900000, guid: 68f0b1ee1521e4a48a76cb584bdf9954, type: 3}
+  textAsset: {fileID: 0}
 --- !u!4 &548632710
 Transform:
   m_ObjectHideFlags: 0
@@ -160,31 +160,31 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 323
+      value: 524
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -163
+      value: -223
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalPosition.z
-      value: -220
+      value: -351
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0.17504957
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.39063716
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0.075932145
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.9005524
       objectReference: {fileID: 0}
     - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
       propertyPath: m_RootOrder
@@ -236,7 +236,7 @@ Prefab:
     - target: {fileID: 20356224661064630, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 114632829293187806, guid: 50cf9823537d6448dadfc7ea646ba11b,
         type: 2}
@@ -297,6 +297,19 @@ Prefab:
         type: 2}
       propertyPath: m_TargetDisplay
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114632829293187806, guid: 50cf9823537d6448dadfc7ea646ba11b,
+        type: 2}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4729140988283718, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -46.9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50cf9823537d6448dadfc7ea646ba11b, type: 2}
@@ -461,32 +474,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1986421426119405d98fcc2f763c1cc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MOVE_CAM: 0
   DRAW_LINES: 1
-  camColor: {r: 1, g: 0, b: 0, a: 0}
-  lineRendererWidth: 10
-  lineRendererOffset: -1
-  camLookAt: {x: 200, y: 120, z: 0}
-  LOOK_AROUND: 0
+  MOVE_CAM: 1
+  LOOK_AROUND: 1
+  camLookAt: {x: 0, y: 50, z: 0}
+  camColor: {r: 0, g: 0, b: 0, a: 0}
   DRAW_QUAD: 1
   quadColor: {r: 1, g: 0, b: 1, a: 1}
   QUAD_OFFSET: {x: 0, y: 0}
-  DRAW_TRI: 1
+  DRAW_TRI: 0
   triColor: {r: 0, g: 1, b: 1, a: 1}
   TRI_OFFSET: {x: 0, y: 0}
   DRAW_POLY: 1
   polyColor: {r: 1, g: 0, b: 0, a: 1}
   POLY_OFFSET: {x: 0, y: 0}
-  LIMIT_RADIUS: 1
+  LIMIT_RADIUS: 0
   polyVerts: 6
   polyRadius: 100
-  f: 800
+  lineRendererWidth: 10
+  lineRendererOffset: -1
+  f: 1000
   u: 640
   v: 480
-  timeToCompleteCircle: -15
+  timeToCompleteCircle: 20
   camTrajectoryRadius: 300
-  currentAngleDeg: 90
-  DEBUG_LOGS: 1
+  currentAngleDeg: 0
+  DEBUG_LOGS: 0
 --- !u!4 &994635430
 Transform:
   m_ObjectHideFlags: 0

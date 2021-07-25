@@ -5,13 +5,11 @@ using UnityEngine;
 
 public class multiPlaneVirtualProjector : MonoBehaviour
 {
-    public bool MOVE_CAM = true;
     public bool DRAW_LINES = true;
-    public Color camColor;
-    public int lineRendererWidth = 10;
-    public int lineRendererOffset = -1;
-    public Vector3 camLookAt;
+    public bool MOVE_CAM = true;
     public bool LOOK_AROUND = true;
+    public Vector3 camLookAt;
+    public Color camColor;
 
 
     public bool DRAW_QUAD = true;
@@ -28,6 +26,8 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public bool LIMIT_RADIUS = true;
     public int polyVerts = 6;
     public int polyRadius = 100;
+    public int lineRendererWidth = 10; // FIXME : adapat 
+    public int lineRendererOffset = -1;
 
     // public bool DRAW_SHAPE = true;
     // public Color shapeColor = Color.green;
@@ -55,25 +55,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         new Vector3(  50.0f,  50.0f, 0.0f),
     };
 
-    // //Wall points wrt origin // FIXME : is this needed?
-    // // Vector3[] CROSS = new[] {
-    // //     new Vector3(    0.0f,  250.0f, 0.0f),
-    // //     new Vector3( -250.0f,    0.0f, 0.0f),
-    // //     new Vector3(    0.0f, -250.0f, 0.0f),
-    // //     new Vector3(  250.0f,    0.0f, 0.0f),
-    // // };
-
-    GameObject rayTracerManager;
-    GameObject triangleRenderer;
-    GameObject polyRenderer;
-    GameObject shapeRenderer;
-
-    LineRenderer line;
-    LineRenderer triLine;
-    LineRenderer polyLine;
-    LineRenderer shapeLine;
-
-
     Vector3[] triShape = new[] {
         new Vector3( 0.0f,      190.0f, 0.0f),
         new Vector3( -192.0f,   -144.0f, 0.0f),
@@ -84,6 +65,10 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         new Vector3( 142.0f,    -114.0f, 0.0f),
         new Vector3( 0.0f,      140.0f, 0.0f)
     };
+
+    //GameObject rayTracerManager;
+
+    LineRenderer camRenderer;
 
     public bool DEBUG_LOGS = false;
     void DEBUG(string str) { if (DEBUG_LOGS) Debug.Log(str); }
@@ -97,70 +82,12 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         K[1, 2] = -v / 2.0f;
         K[2, 2] = -1;
 
+        camRenderer = this.gameObject.AddComponent<LineRenderer>();
+
         ///////////////////////////////////////////////////
         // Ray Tracer Manager
         ///////////////////////////////////////////////////
-        rayTracerManager = GameObject.Find("rayTracerManager");
-        if (!rayTracerManager) rayTracerManager = new GameObject("rayTracerManager");
-
-        line = this.gameObject.AddComponent<LineRenderer>(); // FIXME : move this to a different gameobject if necesary 
-        line.material = new Material(Shader.Find("Sprites/Default"));
-        line.startColor = line.endColor = quadColor;
-        line.startWidth = line.endWidth = lineRendererWidth;
-        line.loop = true;
-        line.positionCount = 4;
-        //GameObject.Destroy(line, duration);
-
-        ///////////////////////////////////////////////////
-        // TRIANGLE
-        ///////////////////////////////////////////////////
-        triangleRenderer = new GameObject(gameObject.name + "_triangleRenderer");
-        triangleRenderer.transform.parent = rayTracerManager.transform;
-        triangleRenderer.AddComponent<LineRenderer>();
-        triLine = triangleRenderer.GetComponent<LineRenderer>();
-        triLine.material = new Material(Shader.Find("Sprites/Default"));
-        triLine.startColor = triLine.endColor = triColor;
-        triLine.startWidth = triLine.endWidth = lineRendererWidth;
-        triLine.positionCount = triShape.Length;
-
-        ///////////////////////////////////////////////////
-        // POLYGON
-        ///////////////////////////////////////////////////
-        polyRenderer = new GameObject(gameObject.name + "_polyRenderer");
-        polyRenderer.transform.parent = rayTracerManager.transform;
-        polyRenderer.AddComponent<LineRenderer>();
-        polyLine = polyRenderer.GetComponent<LineRenderer>();
-        polyLine.material = new Material(Shader.Find("Sprites/Default"));
-        polyLine.loop = true;
-        polyLine.startColor = polyLine.endColor = polyColor;
-        polyLine.startWidth = polyLine.endWidth = lineRendererWidth;
-        polyLine.positionCount = polyVerts;
-
-
-        ///////////////////////////////////////////////////
-        // SVG Shape
-        ///////////////////////////////////////////////////
-        // string[] lines = textAsset.text.Split("\n"[0]); // gets all lines into separate strings
-        // print(" NLines= " + lines.Length);
-        // shape = new Vector3[lines.Length];
-
-        // for (var i = 0; i < lines.Length; i++)
-        // {
-        //     var pt = lines[i].Split(","[0]); // gets 3 parts of the vector into separate strings
-        //     var x = float.Parse(pt[0]);
-        //     var y = float.Parse(pt[1]);
-        //     var z = 0.0f;   //float.Parse(pt[2]);
-        //     shape[i] = new Vector3(x, y, z);
-        //     //print( "V["+i+"]= " + shape[i] );
-        // }
-        // shapeRenderer = new GameObject("shapeRenderer");
-        // shapeRenderer.AddComponent<LineRenderer>();
-        // shapeLine = shapeRenderer.GetComponent<LineRenderer>();
-        // shapeLine.material = new Material(Shader.Find("Sprites/Default"));
-        // shapeLine.loop = true;
-        // shapeLine.startColor = polyColor; shapeLine.endColor = polyColor;
-        // shapeLine.SetWidth(10.0f, 10.0f);
-        // shapeLine.positionCount = polyVerts;
+        // FIXME : Refactor multi plane RayTracer 
 
     }
 
@@ -216,44 +143,37 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         DEBUG("t= " + t);
 
 
-        /*// Test ray from projector to plane origin
-        {
-            multiPlaneRayTracer raytracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
-
-            Vector3 rayDirection = camLookAt - transform.position;
-            Vector3 pPlane = raytracer.multiPlaneTrace(transform.position, rayDirection);
-            DEBUG("pointInPlane= " + pPlane);
-			Debug.DrawLine(transform.position, pPlane, Color.blue);
-        }*/
+        // Test ray from projector to plane origin
+        // {
+        //     multiPlaneRayTracer raytracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
+        //     Vector3 rayDirection = camLookAt - transform.position;
+        //     Vector3 pPlane = raytracer.multiPlaneTrace(transform.position, rayDirection);
+        //     DEBUG("pointInPlane= " + pPlane);
+        //     Debug.DrawLine(transform.position, pPlane, Color.blue);
+        // }
 
         /////////////////////////////////////////
         // Project QUAD Shape wrt the Camera
         /////////////////////////////////////////
-        line.enabled = DRAW_QUAD;
+        // line.enabled = DRAW_QUAD; // FIXME
         if (DRAW_QUAD)
         {
-            line.startColor = line.endColor = quadColor;
-            line.startWidth = line.endWidth = lineRendererWidth;
             multiPlaneRayTracer raytracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
-
             Vector3[] wallShape = new Vector3[Wall.Length];
             for (int i = 0; i < Wall.Length; i++)
             {
                 wallShape[i] = Wall[i] + new Vector3(QUAD_OFFSET.x, QUAD_OFFSET.y, -f);
             }
 
-            raytracer.multiPlaneTraceShape(transform.position, wallShape, DRAW_LINES);
+            raytracer.multiPlaneTraceShape(transform.position, wallShape, DRAW_LINES, "QUAD");
         }
 
 
         /////////////////////////////////////////
         // Project TRIANGLE Shape wrt the Camera
         /////////////////////////////////////////
-        triLine.enabled = DRAW_TRI;
         if (DRAW_TRI)
         {
-            triLine.startColor = triLine.endColor = triColor;
-            triLine.startWidth = triLine.endWidth = lineRendererWidth;
             multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
 
             Vector3[] TRIShape = new Vector3[triShape.Length];
@@ -262,81 +182,84 @@ public class multiPlaneVirtualProjector : MonoBehaviour
             {
                 TRIShape[i] = triShape[i] + new Vector3(TRI_OFFSET.x, TRI_OFFSET.y, -f);
             }
-            //multiPlaneRayTracer.traceShape(TRIShape, transform.position, triLine, lineRendererOffset, DRAW_LINES);
-            multiPlaneRayTracer.multiPlaneTraceShape(transform.position, TRIShape, DRAW_LINES);
+
+            multiPlaneRayTracer.multiPlaneTraceShape(transform.position, TRIShape, DRAW_LINES, "TRIANGLE_D");
+        }
+        else
+        {
+            //Clean stuff //FIXME
+            //triLine.enabled = DRAW_TRI;
         }
 
 
-        // /////////////////////////////////////////////////////////
-        // // Project POLYGON Shape wrt the Camera
-        // /////////////////////////////////////////////////////////
-        // polyLine.enabled = DRAW_POLY;
-        // if (DRAW_POLY)
-        // {
-        //     // Limit polygon radius size based on focal distance
-        //     // This is done by finding the distance to the nearest point 
-        //     // for each line that every pair of vertices defines
-        //     if (LIMIT_RADIUS)
-        //     {
-        //         float minRadius = Mathf.Infinity;
-        //         for (int k = 0; k < 4; k++)
-        //         {
-        //             Debug.DrawLine(transform.position, Wall[k] * 5, camColor); // FIXME : move this somewhere else so it always executes and fix the scale issue
+        /////////////////////////////////////////////////////////
+        // Project POLYGON Shape wrt the Camera
+        /////////////////////////////////////////////////////////
+        if (DRAW_POLY)
+        {
+            // Limit polygon radius size based on focal distance
+            // This is done by finding the distance to the nearest point 
+            // for each line that every pair of vertices defines
+            if (LIMIT_RADIUS)
+            {
+                float minRadius = Mathf.Infinity;
+                for (int k = 0; k < 4; k++)
+                {
+                    Debug.DrawLine(transform.position, Wall[k] * 5, camColor); // FIXME : move this somewhere else so it always executes and fix the scale issue
 
-        //             Vector3 P1 = -Rt.MultiplyVector(transform.position - Wall[k] * 5);
-        //             Vector3 P2 = -Rt.MultiplyVector(transform.position - Wall[(k + 1) % 4] * 5);
-        //             DEBUG("\t->P1[" + k + "]= " + P1);
-        //             DEBUG("\t->P2[" + k + "]= " + P2);
+                    Vector3 P1 = -M.MultiplyVector(transform.position - Wall[k] * 5);
+                    Vector3 P2 = -M.MultiplyVector(transform.position - Wall[(k + 1) % 4] * 5);
+                    DEBUG("\t->P1[" + k + "]= " + P1);
+                    DEBUG("\t->P2[" + k + "]= " + P2);
 
-        //             float u1 = (f * P1.x) / P1.z;
-        //             float v1 = (f * P1.y) / P1.z;
-        //             float u2 = (f * P2.x) / P2.z;
-        //             float v2 = (f * P2.y) / P2.z;
-        //             DEBUG("1_(u,v)= " + u1 + " , " + v1);
-        //             DEBUG("2_(u,v)= " + u2 + " , " + v2);
+                    float u1 = (f * P1.x) / P1.z;
+                    float v1 = (f * P1.y) / P1.z;
+                    float u2 = (f * P2.x) / P2.z;
+                    float v2 = (f * P2.y) / P2.z;
+                    DEBUG("1_(u,v)= " + u1 + " , " + v1);
+                    DEBUG("2_(u,v)= " + u2 + " , " + v2);
 
-        //             // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-        //             // simplified since p=(x0,y0)=(0,0)
-        //             float distToEdge = Mathf.Abs(u2 * v1 - v2 * u1) /
-        //                                Mathf.Sqrt((v2 - v1) * (v2 - v1) + (u2 - u1) * (u2 - u1));
-        //             if (distToEdge < minRadius) minRadius = distToEdge;
-        //         }
-        //         polyRadius = (int)minRadius;
-        //         DEBUG("LimitMin= " + minRadius);
+                    // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+                    // simplified since p=(x0,y0)=(0,0)
+                    float distToEdge = Mathf.Abs(u2 * v1 - v2 * u1) /
+                                       Mathf.Sqrt((v2 - v1) * (v2 - v1) + (u2 - u1) * (u2 - u1));
+                    if (distToEdge < minRadius) minRadius = distToEdge;
+                }
+                polyRadius = (int)minRadius;
+                DEBUG("LimitMin= " + minRadius);
 
-        //         // Debug.DrawLine( new Vector3(xmin,ymax,0), new Vector3(xmin,ymin,0), Color.red  );
-        //         // Debug.DrawLine( new Vector3(xmin,ymin,0), new Vector3(xmax,ymin,0), Color.red  );
-        //         // Debug.DrawLine( new Vector3(xmax,ymin,0), new Vector3(xmax,ymax,0), Color.red  );
-        //         // Debug.DrawLine( new Vector3(xmax,ymax,0), new Vector3(xmin,ymax,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmin,ymax,0), new Vector3(xmin,ymin,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmin,ymin,0), new Vector3(xmax,ymin,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmax,ymin,0), new Vector3(xmax,ymax,0), Color.red  );
+                // Debug.DrawLine( new Vector3(xmax,ymax,0), new Vector3(xmin,ymax,0), Color.red  );
 
-        //         // polyLine.positionCount = 4;
-        //         // polyLine.SetPosition( 0 , new Vector3(xmin,ymax, -1.0f ) );
-        //         // polyLine.SetPosition( 1 , new Vector3(xmin,ymin, -1.0f ) );
-        //         // polyLine.SetPosition( 2 , new Vector3(xmax,ymin, -1.0f ) );
-        //         // polyLine.SetPosition( 3 , new Vector3(xmax,ymax, -1.0f ) );
-        //     }
+                // polyLine.positionCount = 4;
+                // polyLine.SetPosition( 0 , new Vector3(xmin,ymax, -1.0f ) );
+                // polyLine.SetPosition( 1 , new Vector3(xmin,ymin, -1.0f ) );
+                // polyLine.SetPosition( 2 , new Vector3(xmax,ymin, -1.0f ) );
+                // polyLine.SetPosition( 3 , new Vector3(xmax,ymax, -1.0f ) );
+            }
 
-        //     polyLine.positionCount = Mathf.Abs(polyVerts);
-        //     polyLine.startColor = polyLine.endColor = polyColor;
-        //     polyLine.startWidth = polyLine.endWidth = lineRendererWidth;
+            //multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
+            //multiPlaneRayTracer.setup(planePoint, planeNormal, rayPosition);
+            Vector3[] polyShape = new Vector3[Mathf.Abs(polyVerts)];
 
-        //     multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(Rt, DEBUG_LOGS);
-        //     multiPlaneRayTracer.setup(planePoint, planeNormal, rayPosition);
-        //     Vector3[] polyShape = new Vector3[polyVerts];
+            float angleStep = (Mathf.PI * 2.0f) / polyVerts;
+            for (int i = 0; i < polyVerts; i++)
+            {
+                // Limit size based either on polyRadius input or focal distance
+                float angle = i * angleStep;
+                float Px = polyRadius * Mathf.Cos(angle);
+                float Py = polyRadius * Mathf.Sin(angle);
+                Debug.Log("\t\t PolyVert[" + i + "]" + Px + "," + Py);
 
-        //     float angleStep = (Mathf.PI * 2.0f) / polyVerts;
-        //     for (int i = 0; i < polyVerts; i++)
-        //     {
-        //         //DEBUG("\t\t PolyVert[" + i + "]");
-        //         // Limit size based either on polyRadius input or focal distance
-        //         float angle = i * angleStep;
-        //         float Px = polyRadius * Mathf.Cos(angle);
-        //         float Py = polyRadius * Mathf.Sin(angle);
+                polyShape[i] = new Vector3(Px + POLY_OFFSET.x, Py + POLY_OFFSET.y, -f);
+            }
+            //multiPlaneRayTracer.traceShape(polyShape, transform.position, polyLine, lineRendererOffset, DRAW_LINES);
+            multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
+            multiPlaneRayTracer.multiPlaneTraceShape(transform.position, polyShape, DRAW_LINES, "POLYGON");
 
-        //         polyShape[i] = new Vector3(Px + POLY_OFFSET.x, Py + POLY_OFFSET.y, f);
-        //     }
-        //     multiPlaneRayTracer.traceShape(polyShape, transform.position, polyLine, lineRendererOffset, DRAW_LINES);
-        // }
+        }
 
 
         /////////////////////////////////////////////////////////
