@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-//using System.Collections.Generic;
 using UnityEngine;
-// FIXME CLEAN ALL
 
 public class multiPlaneRayTracer
 {
@@ -124,7 +122,7 @@ public class multiPlaneRayTracer
                 Debug.Log("LineRenderer was not set! ");
             //new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, -1.0f));//mlineRendererOffset));
 
-            //if (DRAW_LINES) 
+            //if (DRAW_LINES)
             //Debug.DrawLine(rayOrigin, pPlane, mlineRenderer.startColor);
 
             i++;

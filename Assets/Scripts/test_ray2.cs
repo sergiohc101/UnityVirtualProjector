@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class test_ray2 : MonoBehaviour
 {
@@ -41,6 +39,7 @@ public class test_ray2 : MonoBehaviour
     }
 
 
+    public Transform wall;
     public Transform wall1;
     public Transform wall2;
     public Transform wall3;
@@ -51,7 +50,7 @@ public class test_ray2 : MonoBehaviour
 
     void Update()
     {
-        Transform wall;
+        // Transform wall;
         Vector3 mousePos = Input.mousePosition;
         if (Input.GetMouseButton(0))
         {

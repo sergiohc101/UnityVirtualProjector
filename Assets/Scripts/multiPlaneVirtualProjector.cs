@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class multiPlaneVirtualProjector : MonoBehaviour
@@ -26,7 +24,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public bool LIMIT_RADIUS = true;
     public int polyVerts = 6;
     public int polyRadius = 100;
-    public int lineRendererWidth = 10; // FIXME : adapat 
+    public int lineRendererWidth = 10; // FIXME : adapt
     public int lineRendererOffset = -1;
 
     // public bool DRAW_SHAPE = true;
@@ -87,7 +85,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         ///////////////////////////////////////////////////
         // Ray Tracer Manager
         ///////////////////////////////////////////////////
-        // FIXME : Refactor multi plane RayTracer 
+        // FIXME : Refactor multi plane RayTracer
 
     }
 
@@ -96,9 +94,9 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     void Update()
     {
         //Change projector color
-        this.GetComponent<Renderer>().material.color = camColor; // FIXME : make cube child same color 
+        this.GetComponent<Renderer>().material.color = camColor; // FIXME : make cube child same color
 
-        // Projector circular movement 
+        // Projector circular movement
         if (MOVE_CAM)
         {
             float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
@@ -116,7 +114,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         }
         else
         {
-            // Projector looks around in space 
+            // Projector looks around in space
             float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
             currentAngleDeg += Time.deltaTime * camSpeed;
             if (currentAngleDeg >= Mathf.PI * 2.0f * Mathf.Rad2Deg) currentAngleDeg = 0.0f;
@@ -198,7 +196,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         if (DRAW_POLY)
         {
             // Limit polygon radius size based on focal distance
-            // This is done by finding the distance to the nearest point 
+            // This is done by finding the distance to the nearest point
             // for each line that every pair of vertices defines
             if (LIMIT_RADIUS)
             {

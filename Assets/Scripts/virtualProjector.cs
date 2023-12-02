@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class virtualProjector : MonoBehaviour
@@ -101,7 +99,7 @@ public class virtualProjector : MonoBehaviour
         rayTracerManager = GameObject.Find("rayTracerManager");
         if (!rayTracerManager) rayTracerManager = new GameObject("rayTracerManager");
 
-        line = this.gameObject.AddComponent<LineRenderer>(); // FIXME : move this to a different gameobject if necesary 
+        line = this.gameObject.AddComponent<LineRenderer>(); // FIXME : move this to a different gameobject if necesary
         line.material = new Material(Shader.Find("Sprites/Default"));
         line.startColor = line.endColor = quadColor;
         line.startWidth = line.endWidth = lineRendererWidth;
@@ -166,7 +164,7 @@ public class virtualProjector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Camera obscura model 
+        // Camera obscura model
         // lp = K [ R|t ] P ,  or
         // lp = K R [ I| -c ] P
         // looking at the origin, up vector is [0 1 0]
@@ -174,7 +172,7 @@ public class virtualProjector : MonoBehaviour
         //Change projector color
         this.GetComponent<Renderer>().material.color = camColor;
 
-        // Projector circular movement 
+        // Projector circular movement
         if (MOVE_CAM)
         {
             float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
@@ -295,7 +293,7 @@ public class virtualProjector : MonoBehaviour
         if (DRAW_POLY)
         {
             // Limit polygon radius size based on focal distance
-            // This is done by finding the distance to the nearest point 
+            // This is done by finding the distance to the nearest point
             // for each line that every pair of vertices defines
             if (LIMIT_RADIUS)
             {
