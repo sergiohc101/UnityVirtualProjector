@@ -137,7 +137,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9511572bc8a245e69f99a5107b5f51a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DEBUG_LOGS: 0
   MOVE_CAM: 1
   DRAW_LINES: 1
   camColor: {r: 0.07058824, g: 0.60784316, b: 0.95686275, a: 1}
@@ -160,5 +159,6 @@ MonoBehaviour:
   u: 640
   v: 480
   timeToCompleteCircle: 10
-  radius: 300
+  camTrajectoryRadius: 300
   currentAngleDeg: 0
+  DEBUG_LOGS: 0
