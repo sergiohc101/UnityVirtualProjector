@@ -46,14 +46,14 @@ public class multiPlaneVirtualProjector : MonoBehaviour
 
 
     //Wall points wrt origin
-    Vector3[] Wall = new[] {
+    Vector3[] Wall = {
         new Vector3( -50.0f,  50.0f, 0.0f),
         new Vector3( -50.0f, -50.0f, 0.0f),
         new Vector3(  50.0f, -50.0f, 0.0f),
         new Vector3(  50.0f,  50.0f, 0.0f),
     };
 
-    Vector3[] triShape = new[] {
+    Vector3[] triShape = {
         new Vector3( 0.0f,      190.0f, 0.0f),
         new Vector3( -192.0f,   -144.0f, 0.0f),
         new Vector3( 192.0f,    -144.0f, 0.0f),
@@ -63,10 +63,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         new Vector3( 142.0f,    -114.0f, 0.0f),
         new Vector3( 0.0f,      140.0f, 0.0f)
     };
-
-    //GameObject rayTracerManager;
-
-    LineRenderer camRenderer;
 
     public bool DEBUG_LOGS = false;
     void DEBUG(string str) { if (DEBUG_LOGS) Debug.Log(str); }
@@ -80,12 +76,11 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         K[1, 2] = -v / 2.0f;
         K[2, 2] = -1;
 
-        camRenderer = this.gameObject.AddComponent<LineRenderer>();
 
         ///////////////////////////////////////////////////
         // Ray Tracer Manager
         ///////////////////////////////////////////////////
-        // FIXME : Refactor multi plane RayTracer
+        // FIXME : Refactor multi plane RayTracer, initialize here
 
     }
 
@@ -94,7 +89,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     void Update()
     {
         //Change projector color
-        this.GetComponent<Renderer>().material.color = camColor; // FIXME : make cube child same color
+        GetComponentInChildren<MeshRenderer>().material.color = camColor;
 
         // Projector circular movement
         if (MOVE_CAM)
