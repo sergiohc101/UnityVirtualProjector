@@ -5,12 +5,11 @@ public class multiPlaneRayTracer
 {
     float EPS = 0.000001f;
     Matrix4x4 Rt;
-    Vector3 rayPosition = Vector3.zero; // FIXME : Is this ever nonzero?
     bool DEBUG_LOGS = false;
 
     static ArrayList mShapes = new ArrayList();
 
-    GameObject mPlaneManagerGO;
+    GameObject planeManagerGO;
     GameObject rayTracerManager;
 
     void setDebugLogs(bool debug) { DEBUG_LOGS = debug; }
@@ -23,20 +22,23 @@ public class multiPlaneRayTracer
         setDebugLogs(debug);
 
         // Get reference to PlaneManager
-        mPlaneManagerGO = GameObject.Find("planeManager");
-        if (!mPlaneManagerGO) Debug.LogError("No reference to planeManager in Scene");
+        planeManagerGO = GameObject.Find("planeManager");
+        if (!planeManagerGO) Debug.LogError("No reference to planeManager in Scene");
 
-        // Get reference to Ray Tracer Manager
+        // Get reference to rayTracerManager
         rayTracerManager = GameObject.Find("rayTracerManager");
-        if (!rayTracerManager) rayTracerManager = new GameObject("rayTracerManager");
+        if (!rayTracerManager) {
+            Debug.Log("Creating new rayTracerManager instance.");
+            rayTracerManager = new GameObject("rayTracerManager");
+        }
     }
 
     static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
     {
-        Vector3 dir = point - pivot; // get point direction relative to pivot
-        dir = Quaternion.Euler(angles) * dir; // rotate it
-        point = dir + pivot; // calculate rotated point
-        return point; // return it
+        Vector3 dir = point - pivot;            // Get point direction relative to pivot
+        dir = Quaternion.Euler(angles) * dir;   // Rotate it
+        point = dir + pivot;                    // Compute rotated point
+        return point;
     }
 
 
@@ -44,14 +46,16 @@ public class multiPlaneRayTracer
     {
         LineRenderer line = null;
 
-        //Look up shapeName in list
+        // Look up shapeName in list
         if (mShapes.Contains(shapeName))
         {
-            Debug.Log("A shape exists already for " + shapeName);
+            Debug.Log("Found existing shape for " + shapeName);
 
+            // Check if the LineRenderer component for this shape exists and retrieve it
             bool lineRendererFound = false;
-            Transform[] children = rayTracerManager.GetComponentsInChildren<Transform>(true);
-            foreach (var go in children)
+            bool includeInactive = true;
+            Transform[] rayTracerManagerChildren = rayTracerManager.GetComponentsInChildren<Transform>(includeInactive);
+            foreach (var go in rayTracerManagerChildren)
             {
                 if (go.name == "_lineRenderer_" + shapeName)
                 {
@@ -61,10 +65,11 @@ public class multiPlaneRayTracer
                     break;
                 }
             }
-            if (!lineRendererFound) Debug.LogError("This should not happen!");
+            if (!lineRendererFound) Debug.LogError("lineRenderer" + shapeName + "not found!");
 
-            Transform[] childrenP = mPlaneManagerGO.GetComponentsInChildren<Transform>(true);
-            foreach (var go in childrenP)
+            // Destroy all previous shape hits from planeManagerGO
+            Transform[] planeManagerChildren = planeManagerGO.GetComponentsInChildren<Transform>(includeInactive);
+            foreach (var go in planeManagerChildren)
             {
                 if (go.name == "_hits_" + shapeName)
                 {
@@ -78,11 +83,13 @@ public class multiPlaneRayTracer
             }
 
         }
+        // Check for non-generic shape
         else if (shapeName != "noname")
         {
             Debug.Log("Adding shape" + shapeName);
             mShapes.Add(shapeName);
 
+            // Create a new GameObject which contains a LineRenderer component for the shape
             GameObject lineRenderer = new GameObject();
             lineRenderer.name = "_lineRenderer_" + (shapeName != "noname" ? shapeName : "");
             lineRenderer.transform.parent = rayTracerManager.transform;
@@ -92,25 +99,25 @@ public class multiPlaneRayTracer
 
             line.material = new Material(Shader.Find("Sprites/Default"));
             line.startColor = line.endColor = Color.red;
-            line.startWidth = line.endWidth = 5.0f; //lineRendererWidth; // FIXME
-            line.loop = true;
+            line.startWidth = line.endWidth = 5.0f; // ToDo: Use lineRendererWidth
+            line.loop = true; // ToDo : Make configurable
 
-
+            // Create a new GameObject which contains all "hits" for the shape
             GameObject hitsObject = new GameObject();
             hitsObject.name = "_hits_" + (shapeName != "noname" ? shapeName : "");
-            hitsObject.transform.parent = mPlaneManagerGO.transform;
+            hitsObject.transform.parent = planeManagerGO.transform;
         }
 
         if (line != null)
             line.positionCount = shape.Length;
         else
-            Debug.Log("LineRenderer was not set! ");
+            Debug.LogError("LineRenderer" + shapeName + "was not set!");
 
         int i = 0;
         foreach (var rayDirection in shape)
         {
             Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
-            //Debug.Log("\t worldRayDirection: " + worldRayDirection);
+            DEBUG("\t worldRayDirection: " + worldRayDirection);
 
             Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
 
@@ -133,8 +140,8 @@ public class multiPlaneRayTracer
     // This function calls the trace function for a point intersecting all plane references handled by the PlaneManager
     public Vector3 multiPlaneTrace(Vector3 rayOrigin, Vector3 rayDirection, string shapeName = "noname")
     {
-        GameObject parent = mPlaneManagerGO;
-        Transform[] childrenP = mPlaneManagerGO.GetComponentsInChildren<Transform>(true);
+        GameObject parent = planeManagerGO;
+        Transform[] childrenP = planeManagerGO.GetComponentsInChildren<Transform>(true);
         foreach (var go in childrenP)
         {
             if (go.name == "_hits_" + shapeName)
@@ -148,14 +155,15 @@ public class multiPlaneRayTracer
         //Debug.Log("Ray origin:" + ray.origin + " :: direction: " + ray.direction);
 
 
-        multiPlaneManager[] mPlaneManager = mPlaneManagerGO.GetComponents<multiPlaneManager>();
+        multiPlaneManager[] planeManager = planeManagerGO.GetComponents<multiPlaneManager>();
 
-        Transform[] planes = mPlaneManager[0].getPlanes();
+        Transform[] planes = planeManager[0].getPlanes();
         //Debug.Log("PlanesSz: " + planes.Length);
 
         int i = 0;
         Vector3 closestHitpoint = Vector3.zero;
         float closestPlaneDist = float.MaxValue;
+        // Iterate all planes retrieved from the PlaneManager
         foreach (var wall in planes)
         {
             Plane plane = new Plane(); //(wall.transform.position, -wall.up.normalized); //Plane Constructor does not work!!?
@@ -202,30 +210,27 @@ public class multiPlaneRayTracer
                 }
 
                 //--------------------------------------------------------
-                // FIXME : move all
-                //plane.ClosestPointOnPlane() is available in newer SDKs
+
+                // plane.ClosestPointOnPlane() is available in newer SDKs
                 Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1)); // FIXME : move this to planeManager ??
                 bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
 
                 GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                go.transform.parent = parent.transform; //mPlaneManagerGO.transform;
+                go.transform.parent = parent.transform; //planeManagerGO.transform;
                 go.transform.position = hitPoint;
                 go.transform.transform.rotation = wall.transform.rotation;
                 float GS = 25.0f;
                 go.transform.localScale = new Vector3(GS, GS, GS);
 
-                if (hitWithinBounds)
-                {
-                    if (wall == planes[0])
-                    {
+                if (hitWithinBounds) {
+                    // ToDo: Use projector color
+                    if (wall == planes[0]) {
                         go.GetComponent<Renderer>().material.color = Color.green;
                     }
-                    else if (wall == planes[1])
-                    {
+                    else if (wall == planes[1]) {
                         go.GetComponent<Renderer>().material.color = Color.blue;
                     }
-                    else if (wall == planes[2])
-                    {
+                    else if (wall == planes[2]) {
                         go.GetComponent<Renderer>().material.color = Color.yellow;
                     }
                 }
@@ -250,7 +255,7 @@ public class multiPlaneRayTracer
                     //Debug.Log("closestPointForHitInWorld():  " + closestPointForHitInWorld);
 
                     GameObject hitNear = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    hitNear.transform.parent = parent.transform; // mPlaneManagerGO.transform;
+                    hitNear.transform.parent = parent.transform; // planeManagerGO.transform;
                     hitNear.transform.position = closestPointForHitInWorld;
                     hitNear.name = "Nearest";
                     float MS = 15.0f;

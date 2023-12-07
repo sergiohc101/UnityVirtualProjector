@@ -201,7 +201,7 @@ public class virtualProjector : MonoBehaviour
         DEBUG("|Pos|= " + transform.position.magnitude);
         DEBUG("t= " + t);
 
-        // Copy origial view matrix
+        // Copy original view matrix
         Matrix4x4 Rt = L;
         //DEBUG("Rt= \n" + Rt );
         // Remove matrix scale	// FIXME : place Cube gameobject elsewhere to remove scale factor from main transform component (this)

@@ -37,7 +37,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public float u = 640.0f;
     public float v = 480.0f;
 
-    //Setup camera matrix K
+    // Camera matrix K
     public float[,] K = new float[3, 3];
 
     public float timeToCompleteCircle = 5.0f; // in seconds
@@ -45,7 +45,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public float currentAngleDeg;
 
 
-    //Wall points wrt origin
+    // Wall points wrt origin
     Vector3[] Wall = {
         new Vector3( -50.0f,  50.0f, 0.0f),
         new Vector3( -50.0f, -50.0f, 0.0f),
@@ -70,7 +70,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     // Initialization
     void Start()
     {
-        //Set up camera matrix // FIXME
+        // Set up camera matrix
         K[0, 0] = K[1, 1] = f;
         K[0, 2] = -u / 2.0f;
         K[1, 2] = -v / 2.0f;
@@ -88,7 +88,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Change projector color
+        // Change projector color
         GetComponentInChildren<MeshRenderer>().material.color = camColor;
 
         // Projector circular movement
@@ -126,9 +126,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         Matrix4x4 M = transform.localToWorldMatrix;
         //DEBUG("L= \n" + L );
 
-        Vector3 scale = transform.localScale; // FIXME : delete finally!
-                                              //DEBUG("ScaleVector= " + scale);
-
         // Translation Vector wrt/from Projector to World Origin
         Vector3 t = M.transpose.MultiplyVector(-transform.position);
         //DEBUG("Pos= " + (transform.position) );
@@ -148,7 +145,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         /////////////////////////////////////////
         // Project QUAD Shape wrt the Camera
         /////////////////////////////////////////
-        // line.enabled = DRAW_QUAD; // FIXME
         if (DRAW_QUAD)
         {
             multiPlaneRayTracer raytracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
@@ -256,7 +252,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
 
 
         /////////////////////////////////////////////////////////
-        ///Project SVG Shape wrt the Camera
+        /// Project SVG Shape wrt the Camera
         /////////////////////////////////////////////////////////
         // shapeLine.enabled = DRAW_SHAPE;
         // if (DRAW_SHAPE)
