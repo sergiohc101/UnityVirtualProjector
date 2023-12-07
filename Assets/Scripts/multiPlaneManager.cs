@@ -3,12 +3,13 @@
 public class multiPlaneManager : MonoBehaviour
 {
 
-    public bool hideMissedHits;
+    public bool hideMissedHits = true;
     public bool clear;
 
     public Transform[] Planes;
 
-    public bool generateFromFile = false; // TODO
+    // TODO : Generate planes positions and dimensions from file
+    // public bool generateFromFile = false;
 
 
     // Use this for initialization
@@ -20,27 +21,25 @@ public class multiPlaneManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        bool includeInactive = true;
+        Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
         if (clear)
         {
-            //delete all children objects in transform
-            Transform[] children = GetComponentsInChildren<Transform>(true);
-            int count = 0;
-            foreach (Transform go in children)
+            // Destroy children objects
+            foreach (Transform go in planeManagerChildren)
             {
-                if (++count > 1) // Exclude this planeManager at position [0] and child planes
-                    if (go.name == "Cube" || go.name == "Nearest" || go.name == "Miss")
-                        Destroy(go.gameObject);
+                // Exclude planeManager at position [0] and child planes
+                if (go.name == "Cube" || go.name == "Nearest" || go.name == "Miss")
+                    Destroy(go.gameObject);
             }
             clear = false;
             return;
         }
 
-        // FIXME : bool logic instead of list overwrite
         // Hides missed hits
-        Transform[] allHits = GetComponentsInChildren<Transform>(true);
-        foreach (Transform hit in allHits)
+        foreach (Transform go in planeManagerChildren)
         {
-            hit.gameObject.SetActive(!(hit.name == "Miss") || !hideMissedHits);
+            go.gameObject.SetActive(!(go.name == "Miss") || !hideMissedHits);
         }
 
     }
@@ -52,8 +51,7 @@ public class multiPlaneManager : MonoBehaviour
 
     // public void setShapeHits(string shapeName = "noname")
     // {
-    //     //
-
+    //
     // }
 
     public void removeShapeHits(string shapeName)
