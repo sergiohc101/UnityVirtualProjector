@@ -1,28 +1,40 @@
 // using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
+
 
 public class lineClipper : MonoBehaviour
 {
+
+    const float SCALE = 5.0f;
+
     // Start is called before the first frame update
     void Start()
     {
         // Example usage:
         Vector2 rectCenter = new Vector2(0, 0);
-        float rectWidth = 50f;
-        float rectHeight = 50f;
-        Vector4 lineSegment = ClipLineToRectangle(0f, 30f, 30f, 0f, rectCenter, rectWidth, rectHeight);
-        Debug.Log($"Clipped Line Segment: {lineSegment.x}, {lineSegment.y}, {lineSegment.z}, {lineSegment.w}");
+        float rectWidth = 50f * 2 * SCALE;
+        float rectHeight = 50f * 2 * SCALE;
+        var line = new Vector4(-50, 75, 75, -50) * SCALE;
 
-        renderLine(new Vector4(-25, 25, 25, 25) * 5, Color.cyan );
-        renderLine(new Vector4(-50, 50, 50, 50) * 5 , Color.green );
-        renderLine(lineSegment * 5, Color.red);
+        Debug.Log($"Original Line: {line}");
+        Vector4 clippedLine = ClipLineToRectangle(line.x , line.y , line.z , line.w , rectCenter, rectWidth, rectHeight);
+        Debug.Log($"Clipped Line Segment: {clippedLine.x}, {clippedLine.y}, {clippedLine.z}, {clippedLine.w}");
+
+
+        // renderLine(new Vector4(-50, 50, 50, 50) * SCALE , Color.green );
+        // renderLine(new Vector4(-50, -50, 50, -50) * SCALE , Color.green );
+        // renderLine(new Vector4(-50, 50, 50, -50) * SCALE , Color.yellow );
+
+        renderLine(line , Color.cyan, "original_line" );
+        renderLine(clippedLine, Color.red, "clipped_line");
     }
 
-    void renderLine(Vector4 lineCoordinates,  Color lineColor)
+    void renderLine(Vector4 lineCoordinates,  Color lineColor, string lineName = "Line")
     {
         // Create a new GameObject as a child
-        GameObject lineObject = new GameObject("Line");
+        GameObject lineObject = new GameObject(lineName);
         lineObject.transform.parent = transform; // Set the current object as the parent
 
         // Attach LineRenderer component to the child GameObject
@@ -39,7 +51,7 @@ public class lineClipper : MonoBehaviour
 
         // Set line color
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.material.color = lineColor;
+        // lineRenderer.material.color = lineColor;
         lineRenderer.startColor = lineRenderer.endColor = lineColor;
     }
 
@@ -56,13 +68,20 @@ public class lineClipper : MonoBehaviour
         float rectRight = rectCenter.x + rectWidth / 2f;
         float rectTop = rectCenter.y + rectHeight / 2f;
         float rectBottom = rectCenter.y - rectHeight / 2f;
+
+        Debug.Log($"Rectangle center: {rectCenter}");
         Debug.Log($"Rectangle corners: {rectLeft}, {rectRight}, {rectTop}, {rectBottom}");
+        renderLine(new Vector4(rectLeft, rectTop, rectRight, rectBottom), Color.magenta , "_Rectangle_corners");
+        renderLine(new Vector4(rectLeft, rectTop, rectRight, rectTop), Color.green , "_Rectangle_top");
+        renderLine(new Vector4(rectLeft, rectBottom, rectRight, rectBottom), Color.green , "_Rectangle_bottom");
+        renderLine(new Vector4(rectLeft, rectTop, rectLeft, rectBottom), Color.green , "_Rectangle_left");
+        renderLine(new Vector4(rectRight, rectTop, rectRight, rectBottom), Color.green , "_Rectangle_right");
+
 
         // Check if endpoints are inside the rectangle
         bool inside1 = rectLeft <= x1 && x1 <= rectRight && rectBottom <= y1 && y1 <= rectTop;
         bool inside2 = rectLeft <= x2 && x2 <= rectRight && rectBottom <= y2 && y2 <= rectTop;
         Debug.Log($"Endpoints are inside: {inside1}, {inside2}");
-
 
         if (inside1 && inside2)
         {
@@ -101,8 +120,8 @@ public class lineClipper : MonoBehaviour
     Vector2 ClipToRectangle(float x1, float y1, float x2, float y2, float rectLeft, float rectRight, float rectBottom, float rectTop)
     {
         // Clip the line to the rectangle boundaries
-        float clippedX = Mathf.Max(rectLeft, Mathf.Min(x1, rectRight));
-        float clippedY = Mathf.Max(rectBottom, Mathf.Min(y1, rectTop));
+        float clippedX = Mathf.Clamp(x1, rectLeft, rectRight);
+        float clippedY = Mathf.Clamp(y1, rectBottom, rectTop);
         return new Vector2(clippedX, clippedY);
     }
 
@@ -143,16 +162,18 @@ public class lineClipper : MonoBehaviour
     }
 
     Vector2 LineIntersection(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+{
+    // Calculate the intersection point between two lines
+    float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    if (Mathf.Approximately(den, 0f))
     {
-        // Calculate the intersection point between two lines
-        float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-        if (den == 0)
-        {
-            return Vector2.zero; // Lines are parallel or coincident
-        }
-        float px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / den;
-        float py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / den;
-        return new Vector2(px, py);
+        // Lines are parallel or coincident, return midpoint as a potential intersection
+        return new Vector2((x1 + x2) / 2f, (y1 + y2) / 2f);
     }
+
+    float px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / den;
+    float py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / den;
+    return new Vector2(px, py);
+}
 
 }
