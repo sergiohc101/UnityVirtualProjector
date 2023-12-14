@@ -27,14 +27,18 @@ public class lineClipper : MonoBehaviour
         Debug.Log($"Original Line: {line}");
         Vector4 clippedLine = ClipLineToRectangle(line.x, line.y, line.z, line.w, rectCenter, rectWidth, rectHeight);
         Debug.Log($"Clipped Line Segment: {clippedLine.x}, {clippedLine.y}, {clippedLine.z}, {clippedLine.w}");
-
-
-        // renderLine(new Vector4(-50, 50, 50, 50) * SCALE , Color.green );
-        // renderLine(new Vector4(-50, -50, 50, -50) * SCALE , Color.green );
-        // renderLine(new Vector4(-50, 50, 50, -50) * SCALE , Color.yellow );
-
         renderLine(line, Color.cyan, "original_line");
         renderLine(clippedLine, Color.red, "clipped_line");
+
+        var line2 = new Vector4(-70, -20, 75, -50) * SCALE;
+        Vector4 clippedLine2 = ClipLineToRectangle(line2.x, line2.y, line2.z, line2.w, rectCenter, rectWidth, rectHeight);
+        renderLine(line2, Color.cyan, "original_line2");
+        renderLine(clippedLine2, Color.red, "clipped_line2");
+
+        var line3 = new Vector4(-70, 100, -75, -150) * SCALE;
+        Vector4 clippedLine3 = ClipLineToRectangle(line3.x, line3.y, line3.z, line3.w, rectCenter, rectWidth, rectHeight);
+        renderLine(line3, Color.cyan, "original_line3");
+        renderLine(clippedLine3, Color.red, "clipped_line3");
     }
 
     void renderLine(Vector4 lineCoordinates, Color lineColor, string lineName = "Line")
@@ -51,9 +55,12 @@ public class lineClipper : MonoBehaviour
         lineRenderer.endWidth = 5f;
         lineRenderer.positionCount = 2;
 
+        float Z = 0.0f;
+        if(lineName.StartsWith("clipped")) Z = -1.0f;
+
         // Set line positions based on the Vector4 coordinates
-        lineRenderer.SetPosition(0, new Vector3(lineCoordinates.x, lineCoordinates.y, -1));
-        lineRenderer.SetPosition(1, new Vector3(lineCoordinates.z, lineCoordinates.w, -1));
+        lineRenderer.SetPosition(0, new Vector3(lineCoordinates.x, lineCoordinates.y, Z));
+        lineRenderer.SetPosition(1, new Vector3(lineCoordinates.z, lineCoordinates.w, Z));
 
         // Set line color
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -76,11 +83,11 @@ public class lineClipper : MonoBehaviour
 
         Debug.Log($"Rectangle center: {rectCenter}");
         Debug.Log($"Rectangle corners: {rectLeft}, {rectRight}, {rectTop}, {rectBottom}");
-        renderLine(new Vector4(rectLeft, rectTop, rectRight, rectBottom), Color.magenta , "_Rectangle_corners");
-        renderLine(new Vector4(rectLeft, rectTop, rectRight, rectTop), Color.green , "_Rectangle_top");
-        renderLine(new Vector4(rectLeft, rectBottom, rectRight, rectBottom), Color.green , "_Rectangle_bottom");
-        renderLine(new Vector4(rectLeft, rectTop, rectLeft, rectBottom), Color.green , "_Rectangle_left");
-        renderLine(new Vector4(rectRight, rectTop, rectRight, rectBottom), Color.green , "_Rectangle_right");
+        // renderLine(new Vector4(rectLeft, rectTop, rectRight, rectBottom), Color.magenta , "_Rectangle_corners");
+        // renderLine(new Vector4(rectLeft, rectTop, rectRight, rectTop), Color.green , "_Rectangle_top");
+        // renderLine(new Vector4(rectLeft, rectBottom, rectRight, rectBottom), Color.green , "_Rectangle_bottom");
+        // renderLine(new Vector4(rectLeft, rectTop, rectLeft, rectBottom), Color.green , "_Rectangle_left");
+        // renderLine(new Vector4(rectRight, rectTop, rectRight, rectBottom), Color.green , "_Rectangle_right");
 
         // Compute region codes for both endpoints
         int code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectTop, rectBottom);
