@@ -6,8 +6,14 @@ using UnityEngine.UIElements;
 
 public class lineClipper : MonoBehaviour
 {
-
     const float SCALE = 5.0f;
+
+    // Define region codes for Cohen-Sutherland algorithm
+    const int INSIDE = 0; // 0000
+    const int LEFT = 1;   // 0001
+    const int RIGHT = 2;  // 0010
+    const int BOTTOM = 4; // 0100
+    const int TOP = 8;    // 1000
 
     // Start is called before the first frame update
     void Start()
@@ -16,10 +22,10 @@ public class lineClipper : MonoBehaviour
         Vector2 rectCenter = new Vector2(0, 0);
         float rectWidth = 50f * 2 * SCALE;
         float rectHeight = 50f * 2 * SCALE;
-        var line = new Vector4(-50, 75, 75, -50) * SCALE;
+        var line = new Vector4(-50, 75, 75, -50) * SCALE; // Apply the scale to the line coordinates
 
         Debug.Log($"Original Line: {line}");
-        Vector4 clippedLine = ClipLineToRectangle(line.x , line.y , line.z , line.w , rectCenter, rectWidth, rectHeight);
+        Vector4 clippedLine = ClipLineToRectangle(line.x, line.y, line.z, line.w, rectCenter, rectWidth, rectHeight);
         Debug.Log($"Clipped Line Segment: {clippedLine.x}, {clippedLine.y}, {clippedLine.z}, {clippedLine.w}");
 
 
@@ -27,11 +33,11 @@ public class lineClipper : MonoBehaviour
         // renderLine(new Vector4(-50, -50, 50, -50) * SCALE , Color.green );
         // renderLine(new Vector4(-50, 50, 50, -50) * SCALE , Color.yellow );
 
-        renderLine(line , Color.cyan, "original_line" );
+        renderLine(line, Color.cyan, "original_line");
         renderLine(clippedLine, Color.red, "clipped_line");
     }
 
-    void renderLine(Vector4 lineCoordinates,  Color lineColor, string lineName = "Line")
+    void renderLine(Vector4 lineCoordinates, Color lineColor, string lineName = "Line")
     {
         // Create a new GameObject as a child
         GameObject lineObject = new GameObject(lineName);
@@ -51,7 +57,6 @@ public class lineClipper : MonoBehaviour
 
         // Set line color
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        // lineRenderer.material.color = lineColor;
         lineRenderer.startColor = lineRenderer.endColor = lineColor;
     }
 
@@ -77,103 +82,103 @@ public class lineClipper : MonoBehaviour
         renderLine(new Vector4(rectLeft, rectTop, rectLeft, rectBottom), Color.green , "_Rectangle_left");
         renderLine(new Vector4(rectRight, rectTop, rectRight, rectBottom), Color.green , "_Rectangle_right");
 
+        // Compute region codes for both endpoints
+        int code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectBottom, rectTop);
+        int code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectBottom, rectTop);
 
-        // Check if endpoints are inside the rectangle
-        bool inside1 = rectLeft <= x1 && x1 <= rectRight && rectBottom <= y1 && y1 <= rectTop;
-        bool inside2 = rectLeft <= x2 && x2 <= rectRight && rectBottom <= y2 && y2 <= rectTop;
-        Debug.Log($"Endpoints are inside: {inside1}, {inside2}");
-
-        if (inside1 && inside2)
+        // Check if both endpoints are inside the rectangle
+        if ((code1 & code2) == 0)
         {
-            // Both endpoints are inside, return the original line
+            // Both endpoints are inside or on the boundary, return the original line
             return new Vector4(x1, y1, x2, y2);
         }
-        else if (inside1)
+
+        // Both endpoints are outside the same side, line is completely outside
+        if ((code1 & code2) != 0)
         {
-            // Clip the line to the rectangle boundaries from the inside
-            Vector2 clipped = ClipToRectangle(x1, y1, x2, y2, rectLeft, rectRight, rectBottom, rectTop);
-            return new Vector4(x1, y1, clipped.x, clipped.y);
+            return Vector4.zero;
         }
-        else if (inside2)
+
+        // Clip the line using Cohen-Sutherland algorithm
+        while ((code1 | code2) != 0)
         {
-            // Clip the line to the rectangle boundaries from the inside
-            Vector2 clipped = ClipToRectangle(x2, y2, x1, y1, rectLeft, rectRight, rectBottom, rectTop);
-            return new Vector4(clipped.x, clipped.y, x2, y2);
-        }
-        else
-        {
-            // Both endpoints are outside, check for intersection points
-            List<Vector2> intersections = FindIntersections(x1, y1, x2, y2, rectLeft, rectRight, rectBottom, rectTop);
-            if (intersections.Count == 0)
+            // Both endpoints are outside the same side, line is completely outside
+            if ((code1 & code2) != 0)
             {
-                // No intersection, return Vector4.zero or handle as needed
                 return Vector4.zero;
+            }
+
+            float x, y; // Clipped coordinates
+            int codeOut = (code1 != 0) ? code1 : code2;
+
+            // Determine intersection point
+            if ((codeOut & TOP) != 0)
+            {
+                x = x1 + (x2 - x1) * (rectTop - y1) / (y2 - y1);
+                y = rectTop;
+            }
+            else if ((codeOut & BOTTOM) != 0)
+            {
+                x = x1 + (x2 - x1) * (rectBottom - y1) / (y2 - y1);
+                y = rectBottom;
+            }
+            else if ((codeOut & RIGHT) != 0)
+            {
+                y = y1 + (y2 - y1) * (rectRight - x1) / (x2 - x1);
+                x = rectRight;
+            }
+            else if ((codeOut & LEFT) != 0)
+            {
+                y = y1 + (y2 - y1) * (rectLeft - x1) / (x2 - x1);
+                x = rectLeft;
             }
             else
             {
-                // Clip the line to include only the portion inside the rectangle
-                return new Vector4(intersections[0].x, intersections[0].y, intersections[1].x, intersections[1].y);
+                // Should not reach here, but to handle unexpected cases
+                return Vector4.zero;
+            }
+
+            // Replace the outside endpoint with the intersection point
+            if (codeOut == code1)
+            {
+                x1 = x;
+                y1 = y;
+                code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectBottom, rectTop);
+            }
+            else
+            {
+                x2 = x;
+                y2 = y;
+                code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectBottom, rectTop);
             }
         }
+
+        return new Vector4(x1, y1, x2, y2);
     }
 
-    Vector2 ClipToRectangle(float x1, float y1, float x2, float y2, float rectLeft, float rectRight, float rectBottom, float rectTop)
+    int ComputeRegionCode(float x, float y, float rectLeft, float rectRight, float rectBottom, float rectTop)
     {
-        // Clip the line to the rectangle boundaries
-        float clippedX = Mathf.Clamp(x1, rectLeft, rectRight);
-        float clippedY = Mathf.Clamp(y1, rectBottom, rectTop);
-        return new Vector2(clippedX, clippedY);
+        int code = INSIDE; // Initialize as inside
+
+        if (x < rectLeft)
+        {
+            code |= LEFT;
+        }
+        else if (x > rectRight)
+        {
+            code |= RIGHT;
+        }
+
+        if (y < rectBottom)
+        {
+            code |= BOTTOM;
+        }
+        else if (y > rectTop)
+        {
+            code |= TOP;
+        }
+
+        return code;
     }
-
-    List<Vector2> FindIntersections(float x1, float y1, float x2, float y2, float rectLeft, float rectRight, float rectBottom, float rectTop)
-    {
-        // Find intersection points between the line and rectangle edges
-        List<Vector2> intersections = new List<Vector2>();
-
-        // Check left edge
-        Vector2 leftIntersection = LineIntersection(x1, y1, x2, y2, rectLeft, rectBottom, rectLeft, rectTop);
-        if (leftIntersection != Vector2.zero)
-        {
-            intersections.Add(leftIntersection);
-        }
-
-        // Check right edge
-        Vector2 rightIntersection = LineIntersection(x1, y1, x2, y2, rectRight, rectBottom, rectRight, rectTop);
-        if (rightIntersection != Vector2.zero)
-        {
-            intersections.Add(rightIntersection);
-        }
-
-        // Check bottom edge
-        Vector2 bottomIntersection = LineIntersection(x1, y1, x2, y2, rectLeft, rectBottom, rectRight, rectBottom);
-        if (bottomIntersection != Vector2.zero)
-        {
-            intersections.Add(bottomIntersection);
-        }
-
-        // Check top edge
-        Vector2 topIntersection = LineIntersection(x1, y1, x2, y2, rectLeft, rectTop, rectRight, rectTop);
-        if (topIntersection != Vector2.zero)
-        {
-            intersections.Add(topIntersection);
-        }
-
-        return intersections;
-    }
-
-    Vector2 LineIntersection(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
-{
-    // Calculate the intersection point between two lines
-    float den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-    if (Mathf.Approximately(den, 0f))
-    {
-        // Lines are parallel or coincident, return midpoint as a potential intersection
-        return new Vector2((x1 + x2) / 2f, (y1 + y2) / 2f);
-    }
-
-    float px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / den;
-    float py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / den;
-    return new Vector2(px, py);
 }
 
-}
