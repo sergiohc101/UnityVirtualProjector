@@ -83,33 +83,32 @@ public class lineClipper : MonoBehaviour
         renderLine(new Vector4(rectRight, rectTop, rectRight, rectBottom), Color.green , "_Rectangle_right");
 
         // Compute region codes for both endpoints
-        int code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectBottom, rectTop);
-        int code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectBottom, rectTop);
+        int code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectTop, rectBottom);
+        int code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectTop, rectBottom);
+        Debug.Log($"Region codes: {code1},{code2}");
 
-        // Check if both endpoints are inside the rectangle
-        if ((code1 & code2) == 0)
+        // Both endpoints are inside or on the boundary, return the original line
+        if ((code1 | code2) == 0)
         {
-            // Both endpoints are inside or on the boundary, return the original line
+            Debug.Log("Both endpoints are inside");
             return new Vector4(x1, y1, x2, y2);
         }
 
         // Both endpoints are outside the same side, line is completely outside
         if ((code1 & code2) != 0)
         {
+            Debug.Log("Both endpoints are outside");
             return Vector4.zero;
         }
 
         // Clip the line using Cohen-Sutherland algorithm
         while ((code1 | code2) != 0)
         {
-            // Both endpoints are outside the same side, line is completely outside
-            if ((code1 & code2) != 0)
-            {
-                return Vector4.zero;
-            }
+            // At least one endpoint is outside the clip rectangle; pick it.
+            Debug.Log("Clip line segment");
 
             float x, y; // Clipped coordinates
-            int codeOut = (code1 != 0) ? code1 : code2;
+            int codeOut = code2 > code1 ? code2 : code1;
 
             // Determine intersection point
             if ((codeOut & TOP) != 0)
@@ -143,20 +142,20 @@ public class lineClipper : MonoBehaviour
             {
                 x1 = x;
                 y1 = y;
-                code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectBottom, rectTop);
+                code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectTop, rectBottom);
             }
             else
             {
                 x2 = x;
                 y2 = y;
-                code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectBottom, rectTop);
+                code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectTop, rectBottom);
             }
         }
 
         return new Vector4(x1, y1, x2, y2);
     }
 
-    int ComputeRegionCode(float x, float y, float rectLeft, float rectRight, float rectBottom, float rectTop)
+    int ComputeRegionCode(float x, float y, float rectLeft, float rectRight, float rectTop, float rectBottom)
     {
         int code = INSIDE; // Initialize as inside
 
