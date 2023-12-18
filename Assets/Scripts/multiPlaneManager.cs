@@ -4,7 +4,8 @@ public class multiPlaneManager : MonoBehaviour
 {
 
     public bool hideMissedHits = true;
-    public bool clear;
+    public bool clearHits;
+    const bool includeInactive = true;
 
     public Transform[] Planes;
 
@@ -21,18 +22,11 @@ public class multiPlaneManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool includeInactive = true;
         Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
-        if (clear)
+        if (clearHits)
         {
-            // Destroy children objects
-            foreach (Transform go in planeManagerChildren)
-            {
-                // Exclude planeManager at position [0] and child planes
-                if (go.name == "Cube" || go.name == "Nearest" || go.name == "Miss")
-                    Destroy(go.gameObject);
-            }
-            clear = false;
+            clearAllHits();
+            clearHits = false;
             return;
         }
 
@@ -43,6 +37,20 @@ public class multiPlaneManager : MonoBehaviour
         }
 
     }
+
+
+    public void clearAllHits()
+    {
+        // Destroy children hit objects
+        Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
+        foreach (Transform go in planeManagerChildren)
+        {
+            // Exclude planeManager at position [0] and child planes
+            if (go.name == "Cube" || go.name == "Nearest" || go.name == "Miss")
+                Destroy(go.gameObject);
+        }
+    }
+
 
     public Transform[] getPlanes()
     {

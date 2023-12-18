@@ -3,11 +3,10 @@ using UnityEngine;
 
 public class multiPlaneRayTracer
 {
-    float EPS = 0.000001f;
     Matrix4x4 Rt;
     bool DEBUG_LOGS = false;
 
-    static ArrayList mShapes = new ArrayList();
+    static ArrayList drawnShapes = new ArrayList();
 
     GameObject planeManagerGO;
     GameObject rayTracerManager;
@@ -41,13 +40,22 @@ public class multiPlaneRayTracer
         return point;
     }
 
+    public void multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
+    {
+        // NEW
+        //
+
+
+    }
+
+
 
     public void multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
     {
         LineRenderer line = null;
 
         // Look up shapeName in list
-        if (mShapes.Contains(shapeName))
+        if (drawnShapes.Contains(shapeName))
         {
             Debug.Log("Found existing shape for " + shapeName);
 
@@ -87,7 +95,7 @@ public class multiPlaneRayTracer
         else if (shapeName != "noname")
         {
             Debug.Log("Adding shape" + shapeName);
-            mShapes.Add(shapeName);
+            drawnShapes.Add(shapeName);
 
             // Create a new GameObject which contains a LineRenderer component for the shape
             GameObject lineRenderer = new GameObject();
@@ -158,9 +166,8 @@ public class multiPlaneRayTracer
         multiPlaneManager[] planeManager = planeManagerGO.GetComponents<multiPlaneManager>();
 
         Transform[] planes = planeManager[0].getPlanes();
-        //Debug.Log("PlanesSz: " + planes.Length);
+        Debug.Log("Num Planes: " + planes.Length);
 
-        int i = 0;
         Vector3 closestHitpoint = Vector3.zero;
         float closestPlaneDist = float.MaxValue;
         // Iterate all planes retrieved from the PlaneManager
