@@ -62,10 +62,10 @@ public class multiPlaneManager : MonoBehaviour
     //
     // }
 
-    public void removeShapeHits(string shapeName)
+    public void clearShapeHits(string shapeName)
     {
-        Transform[] children = GetComponentsInChildren<Transform>(true);
-        foreach (var go in children)
+        Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(true);
+        foreach (var go in planeManagerChildren)
         {
             if (go.name == "_hits_" + shapeName)
             {

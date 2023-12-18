@@ -9,6 +9,7 @@ public class multiPlaneRayTracer
     static ArrayList drawnShapes = new ArrayList();
 
     GameObject planeManagerGO;
+    multiPlaneManager planeManager;
     GameObject rayTracerManager;
 
     void setDebugLogs(bool debug) { DEBUG_LOGS = debug; }
@@ -23,6 +24,8 @@ public class multiPlaneRayTracer
         // Get reference to PlaneManager
         planeManagerGO = GameObject.Find("planeManager");
         if (!planeManagerGO) Debug.LogError("No reference to planeManager in Scene");
+        planeManager = planeManagerGO.GetComponent<multiPlaneManager>();
+        if (!planeManager) Debug.LogError("Could not retrieve multiPlaneManager component.");
 
         // Get reference to rayTracerManager
         rayTracerManager = GameObject.Find("rayTracerManager");
@@ -40,9 +43,9 @@ public class multiPlaneRayTracer
         return point;
     }
 
-    public void multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
+    public void NEW_multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
     {
-        // NEW
+        // ToDo: new pipeline goes here
         //
 
 
@@ -76,19 +79,7 @@ public class multiPlaneRayTracer
             if (!lineRendererFound) Debug.LogError("lineRenderer" + shapeName + "not found!");
 
             // Destroy all previous shape hits from planeManagerGO
-            Transform[] planeManagerChildren = planeManagerGO.GetComponentsInChildren<Transform>(includeInactive);
-            foreach (var go in planeManagerChildren)
-            {
-                if (go.name == "_hits_" + shapeName)
-                {
-                    Debug.Log("Destroying children hits: " + go.name);
-                    for (int k = go.childCount - 1; k > 0; k--)
-                    {
-                        GameObject.Destroy(go.GetChild(k).gameObject);
-                    }
-                    break;
-                }
-            }
+            planeManager.clearShapeHits(shapeName);
 
         }
         // Check for non-generic shape
@@ -135,10 +126,7 @@ public class multiPlaneRayTracer
                 line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
             else
                 Debug.Log("LineRenderer was not set! ");
-            //new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, -1.0f));//mlineRendererOffset));
 
-            //if (DRAW_LINES)
-            //Debug.DrawLine(rayOrigin, pPlane, mlineRenderer.startColor);
 
             i++;
         }
@@ -148,9 +136,10 @@ public class multiPlaneRayTracer
     // This function calls the trace function for a point intersecting all plane references handled by the PlaneManager
     public Vector3 multiPlaneTrace(Vector3 rayOrigin, Vector3 rayDirection, string shapeName = "noname")
     {
+         // The parent gameobject is either planeManagerGO or _hits_ shapeName;
         GameObject parent = planeManagerGO;
-        Transform[] childrenP = planeManagerGO.GetComponentsInChildren<Transform>(true);
-        foreach (var go in childrenP)
+        Transform[] planeManagerChildren = planeManagerGO.GetComponentsInChildren<Transform>(true);
+        foreach (var go in planeManagerChildren)
         {
             if (go.name == "_hits_" + shapeName)
             {
@@ -163,9 +152,7 @@ public class multiPlaneRayTracer
         //Debug.Log("Ray origin:" + ray.origin + " :: direction: " + ray.direction);
 
 
-        multiPlaneManager[] planeManager = planeManagerGO.GetComponents<multiPlaneManager>();
-
-        Transform[] planes = planeManager[0].getPlanes();
+        Transform[] planes = planeManager.getPlanes();
         Debug.Log("Num Planes: " + planes.Length);
 
         Vector3 closestHitpoint = Vector3.zero;
@@ -191,8 +178,9 @@ public class multiPlaneRayTracer
 
 
                 Vector3 scale = wall.transform.localScale;
+                // Debug.Log("wall.transform.localScale: " + scale);
                 Matrix4x4 Rt = wall.transform.localToWorldMatrix;
-                // Remove matrix scale	// FIXME :
+                // Remove matrix scale
                 Rt.SetColumn(0, Rt.GetColumn(0) / scale[0]);
                 Rt.SetColumn(1, Rt.GetColumn(1) / scale[1]);
                 Rt.SetColumn(2, Rt.GetColumn(2) / scale[2]);
@@ -223,10 +211,10 @@ public class multiPlaneRayTracer
                 bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
 
                 GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                go.transform.parent = parent.transform; //planeManagerGO.transform;
+                go.transform.parent = parent.transform;
                 go.transform.position = hitPoint;
                 go.transform.transform.rotation = wall.transform.rotation;
-                float GS = 25.0f;
+                const float GS = 25.0f;
                 go.transform.localScale = new Vector3(GS, GS, GS);
 
                 if (hitWithinBounds) {
@@ -262,10 +250,10 @@ public class multiPlaneRayTracer
                     //Debug.Log("closestPointForHitInWorld():  " + closestPointForHitInWorld);
 
                     GameObject hitNear = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                    hitNear.transform.parent = parent.transform; // planeManagerGO.transform;
+                    hitNear.transform.parent = parent.transform;
                     hitNear.transform.position = closestPointForHitInWorld;
                     hitNear.name = "Nearest";
-                    float MS = 15.0f;
+                    const float MS = 15.0f;
                     hitNear.transform.localScale = new Vector3(MS, MS, MS);
                     hitNear.GetComponent<Renderer>().material.color = Color.magenta;
                 }
