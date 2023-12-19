@@ -91,9 +91,9 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         // Change projector color
         GetComponentInChildren<MeshRenderer>().material.color = camColor;
 
-        // Projector circular movement
         if (MOVE_CAM)
         {
+            // Projector circular movement
             float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
             currentAngleDeg += Time.deltaTime * camSpeed;
             if (currentAngleDeg >= Mathf.PI * 2.0f * Mathf.Rad2Deg) currentAngleDeg = 0.0f;
@@ -102,12 +102,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
             float Cy = camTrajectoryRadius * Mathf.Sin(currentAngleDeg * Mathf.Deg2Rad);
             transform.position = new Vector3(Cx, Cy, transform.position.z);
         }
-        if (!LOOK_AROUND)
-        {
-            // Projector looks at world origin, up vector is [0 1 0]
-            transform.LookAt(camLookAt);
-        }
-        else
+        if (LOOK_AROUND)
         {
             // Projector looks around in space
             float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
@@ -117,14 +112,19 @@ public class multiPlaneVirtualProjector : MonoBehaviour
             camLookAt.x = camTrajectoryRadius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
             transform.LookAt(camLookAt);
         }
+        else
+        {
+            // Projector looks at world origin, up vector is [0 1 0]
+            transform.LookAt(camLookAt);
+        }
 
         // Line from projector to origin
-        //if (DRAW_LINES) Debug.DrawLine(transform.position, camLookAt, Color.red); //camColor); // FIXME
+        if (DRAW_LINES) Debug.DrawLine(transform.position, camLookAt, camColor);
 
         //////////////////////////////////////////////////////////////////////////////
 
         Matrix4x4 M = transform.localToWorldMatrix;
-        //DEBUG("L= \n" + L );
+        //DEBUG("M= \n" + M );
 
         // Translation Vector wrt/from Projector to World Origin
         Vector3 t = M.transpose.MultiplyVector(-transform.position);
