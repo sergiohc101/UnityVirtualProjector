@@ -45,8 +45,15 @@ public class multiPlaneRayTracer
 
     public void NEW_multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
     {
-        // ToDo: new pipeline goes here
+        // Instantiate LineRenderer for shapeName:
+        //      Since each line segment can intersect a plane boundaries at most twice,
+        //      its assumed that at most [line.positionCount = (shape.Length + 1) * 2].
+        //      The extra segment is only needed in case of shape loop.
         //
+        // Instantiate _hits_PlaneName container for each Plane inside the _hits_shapeName
+        //      This means: [planeManager] > [_hits_shapeName] > [_hits_PlaneName] > [Hit | Miss]
+        //
+        // Foreach plane, compute raycast  apply line clipping
 
 
     }
@@ -80,7 +87,6 @@ public class multiPlaneRayTracer
 
             // Destroy all previous shape hits from planeManagerGO
             planeManager.clearShapeHits(shapeName);
-
         }
         // Check for non-generic shape
         else if (shapeName != "noname")
@@ -98,8 +104,8 @@ public class multiPlaneRayTracer
 
             line.material = new Material(Shader.Find("Sprites/Default"));
             line.startColor = line.endColor = Color.red;
-            line.startWidth = line.endWidth = 5.0f; // ToDo: Use lineRendererWidth
-            line.loop = true; // ToDo : Make configurable
+            line.startWidth = line.endWidth = 5.0f; // TODO: Use lineRendererWidth
+            line.loop = true; // TODO : Make configurable
 
             // Create a new GameObject which contains all "hits" for the shape
             GameObject hitsObject = new GameObject();
@@ -149,7 +155,7 @@ public class multiPlaneRayTracer
         }
 
         Ray ray = new Ray(rayOrigin, rayDirection);
-        //Debug.Log("Ray origin:" + ray.origin + " :: direction: " + ray.direction);
+        Debug.Log("Ray origin:" + ray.origin + " :: direction: " + ray.direction);
 
 
         Transform[] planes = planeManager.getPlanes();
@@ -218,7 +224,8 @@ public class multiPlaneRayTracer
                 go.transform.localScale = new Vector3(GS, GS, GS);
 
                 if (hitWithinBounds) {
-                    // ToDo: Use projector color
+                    go.name = "Hit";
+                    // TODO: Use wall color
                     if (wall == planes[0]) {
                         go.GetComponent<Renderer>().material.color = Color.green;
                     }

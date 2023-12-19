@@ -12,7 +12,6 @@ public class multiPlaneManager : MonoBehaviour
     public Transform[] Planes;
 
     const bool includeInactive = true;
-    Transform[] planeManagerChildren;
 
     // TODO : Generate planes positions and dimensions from file
     // public bool generateFromFile = false;
@@ -26,12 +25,12 @@ public class multiPlaneManager : MonoBehaviour
 
     void Update()
     {
-        // Update children once per frame
-        planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
+        // Retrieve current children gameobjects
+        Transform[] planeManagerChildren = getChildren(includeInactive);
 
         if (clearHits)
         {
-            clearAllHits();
+            clearAllHits(planeManagerChildren);
             clearHits = false;
             return;
         }
@@ -45,7 +44,13 @@ public class multiPlaneManager : MonoBehaviour
     }
 
 
-    public void clearAllHits()
+    public Transform[] getChildren(bool includeInactive)
+    {
+        return GetComponentsInChildren<Transform>(includeInactive);
+    }
+
+
+    public void clearAllHits(Transform[] planeManagerChildren)
     {
         // Destroy all children hit objects
         foreach (Transform go in planeManagerChildren)
@@ -63,16 +68,10 @@ public class multiPlaneManager : MonoBehaviour
     }
 
 
-    public Transform[] getChildren(bool includeInactive)
-    {
-        // return GetComponentsInChildren<Transform>(includeInactive);
-        return planeManagerChildren;
-    }
-
-
     public void clearShapeHits(string shapeName)
     {
         // Destroy shape children hit objects
+        Transform[] planeManagerChildren = getChildren(includeInactive);
         foreach (var go in planeManagerChildren)
         {
             if (go.name == "_hits_" + shapeName)
