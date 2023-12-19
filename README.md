@@ -16,7 +16,7 @@ Working on `Unity_5.6.7` and `Unity_2021`.
 - [Unity Virtual Projector](#unity-virtual-projector)
   - [Table of Contents](#table-of-contents)
   - [About](#about)
-  - [ToDos](#todos)
+  - [TODOs](#todos)
 
 ## About
 
@@ -25,7 +25,7 @@ See more info at:
 https://bonzolabs.com/multi-plane-virtual-projector/
 
 
-## ToDos
+## TODOs
 
 - Remove scale from plane/cube transforms
 - Handle shape plane discontinuity

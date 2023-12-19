@@ -1,28 +1,34 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// The multiPlaneManager class is meant to hold the plane instances.
+/// It also serves as a parent container for all Hit/Miss objects.
+/// </summary>
 public class multiPlaneManager : MonoBehaviour
 {
 
     public bool hideMissedHits = true;
     public bool clearHits;
-    const bool includeInactive = true;
-
     public Transform[] Planes;
+
+    const bool includeInactive = true;
+    Transform[] planeManagerChildren;
 
     // TODO : Generate planes positions and dimensions from file
     // public bool generateFromFile = false;
 
 
-    // Use this for initialization
     void Start()
     {
-
+        Debug.Log("Initializing multiPlaneManager.");
     }
 
-    // Update is called once per frame
+
     void Update()
     {
-        Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
+        // Update children once per frame
+        planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
+
         if (clearHits)
         {
             clearAllHits();
@@ -41,12 +47,11 @@ public class multiPlaneManager : MonoBehaviour
 
     public void clearAllHits()
     {
-        // Destroy children hit objects
-        Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(includeInactive);
+        // Destroy all children hit objects
         foreach (Transform go in planeManagerChildren)
         {
             // Exclude planeManager at position [0] and child planes
-            if (go.name == "Cube" || go.name == "Nearest" || go.name == "Miss")
+            if (go.name == "Cube" || go.name == "Hit" || go.name == "Nearest" || go.name == "Miss")
                 Destroy(go.gameObject);
         }
     }
@@ -57,14 +62,17 @@ public class multiPlaneManager : MonoBehaviour
         return Planes;
     }
 
-    // public void setShapeHits(string shapeName = "noname")
-    // {
-    //
-    // }
+
+    public Transform[] getChildren(bool includeInactive)
+    {
+        // return GetComponentsInChildren<Transform>(includeInactive);
+        return planeManagerChildren;
+    }
+
 
     public void clearShapeHits(string shapeName)
     {
-        Transform[] planeManagerChildren = GetComponentsInChildren<Transform>(true);
+        // Destroy shape children hit objects
         foreach (var go in planeManagerChildren)
         {
             if (go.name == "_hits_" + shapeName)
