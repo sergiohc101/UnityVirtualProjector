@@ -154,7 +154,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
                 wallShape[i] = Wall[i] + new Vector3(QUAD_OFFSET.x, QUAD_OFFSET.y, -f);
             }
 
-            raytracer.multiPlaneTraceShape(transform.position, wallShape, DRAW_LINES, "QUAD");
+            raytracer.NEW_multiPlaneTraceShape(transform.position, wallShape, DRAW_LINES, "QUAD");
         }
 
 

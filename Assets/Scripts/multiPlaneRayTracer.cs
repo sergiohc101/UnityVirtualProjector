@@ -57,6 +57,80 @@ public class multiPlaneRayTracer
         // Foreach plane, compute raycast for all shape points. Apply line clipping to plane points.
         //
 
+        Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points.");
+        LineRenderer line = null;
+
+        // Look up shapeName in list
+        if (drawnShapes.Contains(shapeName))
+        {
+            Debug.Log($"Found existing shape for '{shapeName}'.");
+
+            // Check if the LineRenderer component for this shape exists and retrieve it
+            bool lineRendererFound = false;
+            bool includeInactive = true;
+            Transform[] rayTracerManagerChildren = rayTracerManager.GetComponentsInChildren<Transform>(includeInactive);
+            foreach (var go in rayTracerManagerChildren)
+            {
+                if (go.name == "_lineRenderer_" + shapeName)
+                {
+                    line = go.gameObject.GetComponent<LineRenderer>();
+                    Debug.Log("Got lineRenderer: " + go.name);
+                    lineRendererFound = true;
+                    break;
+                }
+            }
+            if (!lineRendererFound) Debug.LogError("lineRenderer" + shapeName + "not found!.");
+
+            // Destroy all previous shape hits from planeManagerGO
+            planeManager.clearShapeHits(shapeName);
+        }
+        // Check for non-generic shape
+        else if (shapeName != "noname")
+        {
+            Debug.Log($"Adding shape: '{shapeName}'.");
+            drawnShapes.Add(shapeName);
+
+            // Create a new GameObject which contains a LineRenderer component for the shape
+            GameObject lineRenderer = new GameObject();
+            lineRenderer.name = "_lineRenderer_" + (shapeName != "noname" ? shapeName : "");
+            lineRenderer.transform.parent = rayTracerManager.transform;
+
+            lineRenderer.AddComponent<LineRenderer>();
+            line = lineRenderer.GetComponent<LineRenderer>();
+
+            line.material = new Material(Shader.Find("Sprites/Default"));
+            line.startColor = line.endColor = Color.red;
+            line.startWidth = line.endWidth = 5.0f; // TODO: Use lineRendererWidth
+            line.loop = true; // TODO : Make configurable
+
+            // Create a new GameObject which contains all "hits" for the shape
+            GameObject hitsObject = new GameObject();
+            hitsObject.name = "_hits_" + (shapeName != "noname" ? shapeName : "");
+            hitsObject.transform.parent = planeManagerGO.transform;
+        }
+
+        if (line != null)
+            line.positionCount = shape.Length;
+        else
+            Debug.LogError("LineRenderer" + shapeName + "was not set!.");
+
+        int i = 0;
+        foreach (var rayDirection in shape)
+        {
+            Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
+            DEBUG("worldRayDirection: " + worldRayDirection);
+
+            Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
+
+            Debug.Log($"{shapeName}[{i}] :: rayDirection: {rayDirection} \t pointInNearestPlane: {pointInNearestPlane}");
+
+            if (line != null)
+                line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
+            else
+                Debug.Log("LineRenderer was not set! ");
+
+            i++;
+        }
     }
 
 
