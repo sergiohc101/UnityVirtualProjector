@@ -12,7 +12,7 @@ public class multiPlaneRayTracer
     multiPlaneManager planeManager;
     GameObject rayTracerManager;
 
-    void setDebugLogs(bool debug) { DEBUG_LOGS = debug; }
+    void setDebugLogs(bool debug_logs) { DEBUG_LOGS = debug_logs; }
     void setRtMatrix(Matrix4x4 M) { Rt = M; }
     void DEBUG(string str) { if (DEBUG_LOGS) Debug.Log(str); }
 
@@ -43,6 +43,7 @@ public class multiPlaneRayTracer
         return point;
     }
 
+    // TODO: Test on old SDK for retrocompatibility
     public void NEW_multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
     {
         // Instantiate LineRenderer for shapeName:
@@ -53,21 +54,21 @@ public class multiPlaneRayTracer
         // Instantiate _hits_PlaneName container for each Plane inside the _hits_shapeName
         //      This means: [planeManager] > [_hits_shapeName] > [_hits_PlaneName] > [Hit | Miss]
         //
-        // Foreach plane, compute raycast  apply line clipping
-
+        // Foreach plane, compute raycast for all shape points. Apply line clipping to plane points.
+        //
 
     }
 
 
-
     public void multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
     {
+        Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points.");
         LineRenderer line = null;
 
         // Look up shapeName in list
         if (drawnShapes.Contains(shapeName))
         {
-            Debug.Log("Found existing shape for " + shapeName);
+            Debug.Log($"Found existing shape for '{shapeName}'.");
 
             // Check if the LineRenderer component for this shape exists and retrieve it
             bool lineRendererFound = false;
@@ -83,7 +84,7 @@ public class multiPlaneRayTracer
                     break;
                 }
             }
-            if (!lineRendererFound) Debug.LogError("lineRenderer" + shapeName + "not found!");
+            if (!lineRendererFound) Debug.LogError("lineRenderer" + shapeName + "not found!.");
 
             // Destroy all previous shape hits from planeManagerGO
             planeManager.clearShapeHits(shapeName);
@@ -91,7 +92,7 @@ public class multiPlaneRayTracer
         // Check for non-generic shape
         else if (shapeName != "noname")
         {
-            Debug.Log("Adding shape" + shapeName);
+            Debug.Log($"Adding shape: '{shapeName}'.");
             drawnShapes.Add(shapeName);
 
             // Create a new GameObject which contains a LineRenderer component for the shape
@@ -116,23 +117,22 @@ public class multiPlaneRayTracer
         if (line != null)
             line.positionCount = shape.Length;
         else
-            Debug.LogError("LineRenderer" + shapeName + "was not set!");
+            Debug.LogError("LineRenderer" + shapeName + "was not set!.");
 
         int i = 0;
         foreach (var rayDirection in shape)
         {
             Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
-            DEBUG("\t worldRayDirection: " + worldRayDirection);
+            DEBUG("worldRayDirection: " + worldRayDirection);
 
             Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
 
-            Debug.Log("\t " + shapeName + "[" + i + "] :: rayDir: " + rayDirection + "\t pointInNearestPlane:" + pointInNearestPlane);
+            Debug.Log($"{shapeName}[{i}] :: rayDirection: {rayDirection} \t pointInNearestPlane: {pointInNearestPlane}");
 
             if (line != null)
                 line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
             else
                 Debug.Log("LineRenderer was not set! ");
-
 
             i++;
         }
@@ -155,7 +155,7 @@ public class multiPlaneRayTracer
         }
 
         Ray ray = new Ray(rayOrigin, rayDirection);
-        Debug.Log("Ray origin:" + ray.origin + " :: direction: " + ray.direction);
+        Debug.Log($"Ray origin: {ray.origin} :: direction: {ray.direction}");
 
 
         Transform[] planes = planeManager.getPlanes();
