@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-
 public class multiPlaneVirtualProjector : MonoBehaviour
 {
     public bool DRAW_LINES = true;
@@ -8,7 +7,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public bool LOOK_AROUND = true;
     public Vector3 camLookAt;
     public Color camColor;
-
 
     public bool DRAW_QUAD = true;
     public Color quadColor = Color.magenta;
@@ -44,7 +42,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public float camTrajectoryRadius = 300;
     public float currentAngleDeg;
 
-
     // Wall points wrt origin
     Vector3[] Wall = {
         new Vector3( -50.0f,  50.0f, 0.0f),
@@ -54,14 +51,14 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     };
 
     Vector3[] triShape = {
-        new Vector3( 0.0f,      190.0f, 0.0f),
-        new Vector3( -192.0f,   -144.0f, 0.0f),
-        new Vector3( 192.0f,    -144.0f, 0.0f),
-        new Vector3( 0.0f,      190.0f, 0.0f),
-        new Vector3( 0.0f,      140.0f, 0.0f),
-        new Vector3( -142.0f,   -114.0f, 0.0f),
-        new Vector3( 142.0f,    -114.0f, 0.0f),
-        new Vector3( 0.0f,      140.0f, 0.0f)
+        new Vector3(    0.0f,  190.0f, 0.0f),
+        new Vector3( -192.0f, -144.0f, 0.0f),
+        new Vector3(  192.0f, -144.0f, 0.0f),
+        new Vector3(    0.0f,  190.0f, 0.0f),
+        new Vector3(    0.0f,  140.0f, 0.0f),
+        new Vector3( -142.0f, -114.0f, 0.0f),
+        new Vector3(  142.0f, -114.0f, 0.0f),
+        new Vector3(    0.0f,  140.0f, 0.0f)
     };
 
     public bool DEBUG_LOGS = false;
@@ -76,12 +73,10 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         K[1, 2] = -v / 2.0f;
         K[2, 2] = -1;
 
-
         ///////////////////////////////////////////////////
         // Ray Tracer Manager
         ///////////////////////////////////////////////////
         // FIXME : Refactor multi plane RayTracer, initialize here
-
     }
 
 

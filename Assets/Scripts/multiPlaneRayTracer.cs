@@ -23,13 +23,16 @@ public class multiPlaneRayTracer
 
         // Get reference to PlaneManager
         planeManagerGO = GameObject.Find("planeManager");
-        if (!planeManagerGO) Debug.LogError("No reference to planeManager in Scene");
+        if (!planeManagerGO)
+            Debug.LogError("No reference to planeManager in Scene");
         planeManager = planeManagerGO.GetComponent<multiPlaneManager>();
-        if (!planeManager) Debug.LogError("Could not retrieve multiPlaneManager component.");
+        if (!planeManager)
+            Debug.LogError("Could not retrieve multiPlaneManager component.");
 
         // Get reference to rayTracerManager
         rayTracerManager = GameObject.Find("rayTracerManager");
-        if (!rayTracerManager) {
+        if (!rayTracerManager)
+        {
             Debug.Log("Creating new rayTracerManager instance.");
             rayTracerManager = new GameObject("rayTracerManager");
         }
@@ -74,12 +77,12 @@ public class multiPlaneRayTracer
                 if (go.name == "_lineRenderer_" + shapeName)
                 {
                     line = go.gameObject.GetComponent<LineRenderer>();
-                    Debug.Log("Got lineRenderer: " + go.name);
+                    Debug.Log($"Got lineRenderer '{line.name}'.");
                     lineRendererFound = true;
                     break;
                 }
             }
-            if (!lineRendererFound) Debug.LogError("lineRenderer" + shapeName + "not found!.");
+            if (!lineRendererFound) Debug.LogError($"lineRenderer '{shapeName}' not found!.");
 
             // Destroy all previous shape hits from planeManagerGO
             planeManager.clearShapeHits(shapeName);
@@ -91,28 +94,27 @@ public class multiPlaneRayTracer
             drawnShapes.Add(shapeName);
 
             // Create a new GameObject which contains a LineRenderer component for the shape
-            GameObject lineRenderer = new GameObject();
-            lineRenderer.name = "_lineRenderer_" + (shapeName != "noname" ? shapeName : "");
+            GameObject lineRenderer = new GameObject(
+                                        "_lineRenderer_" + (shapeName != "noname" ? shapeName : ""),
+                                        typeof(LineRenderer));
             lineRenderer.transform.parent = rayTracerManager.transform;
 
-            lineRenderer.AddComponent<LineRenderer>();
             line = lineRenderer.GetComponent<LineRenderer>();
 
             line.material = new Material(Shader.Find("Sprites/Default"));
-            line.startColor = line.endColor = Color.red;
+            line.startColor = line.endColor = Color.red; // TODO: Use some editor color
             line.startWidth = line.endWidth = 5.0f; // TODO: Use lineRendererWidth
             line.loop = true; // TODO : Make configurable
 
             // Create a new GameObject which contains all "hits" for the shape
-            GameObject hitsObject = new GameObject();
-            hitsObject.name = "_hits_" + (shapeName != "noname" ? shapeName : "");
+            GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
             hitsObject.transform.parent = planeManagerGO.transform;
         }
 
         if (line != null)
-            line.positionCount = shape.Length;
+            line.positionCount = (shape.Length + 1) * 2;
         else
-            Debug.LogError("LineRenderer" + shapeName + "was not set!.");
+            Debug.LogError($"LineRenderer '{shapeName}' was not set!.");
 
         int i = 0;
         foreach (var rayDirection in shape)
@@ -127,7 +129,7 @@ public class multiPlaneRayTracer
             if (line != null)
                 line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
             else
-                Debug.Log("LineRenderer was not set! ");
+                Debug.Log("LineRenderer was not set!.");
 
             i++;
         }
