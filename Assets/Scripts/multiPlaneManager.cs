@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 /// <summary>
 /// The multiPlaneManager class is meant to hold the plane instances.
@@ -49,21 +50,25 @@ public class multiPlaneManager : MonoBehaviour
     }
 
 
-    public Transform[] getChildren(bool includeInactive)
-    {
-        return GetComponentsInChildren<Transform>(includeInactive);
-    }
-
-
-    public void clearAllHits(Transform[] hitsContainer)
+     // Define a static readonly array of possible game object names to destroy
+    private static readonly string[] ObjectsToDestroy = { "Cube", "Hit", "Nearest", "Miss" };
+    void clearAllHits(Transform[] hitsContainer)
     {
         // Destroy all children hit objects
         foreach (Transform go in hitsContainer)
         {
-            // Exclude planeManager at position [0] and child planes
-            if (go.name == "Cube" || go.name == "Hit" || go.name == "Nearest" || go.name == "Miss")
+            // Check if the name is in the local array of objects to destroy
+            if (Array.Exists(ObjectsToDestroy, name => name == go.name))
+            {
                 Destroy(go.gameObject);
+            }
         }
+    }
+
+
+    public Transform[] getChildren(bool includeInactive)
+    {
+        return GetComponentsInChildren<Transform>(includeInactive);
     }
 
 
