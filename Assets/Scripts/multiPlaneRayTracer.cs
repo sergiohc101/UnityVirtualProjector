@@ -111,6 +111,7 @@ public class multiPlaneRayTracer
         }
 
         // TODO: Rework this logic to retrieve container GameObjects
+        {
         // Create a new GameObject which contains all "hits" for the shape
         GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
         hitsObject.transform.parent = planeManagerGO.transform;
@@ -125,6 +126,7 @@ public class multiPlaneRayTracer
             p++;
             Debug.Log($"Created '{hitsName}' hits container.");
         }
+        }
 
         if (line != null)
             line.positionCount = shape.Length; // FIXME: Use (shape.Length + 1) * 2; ??
@@ -135,7 +137,7 @@ public class multiPlaneRayTracer
         int w = 0;
         foreach (var wall in planes)
         {
-            // Print plane normals
+            // Print plane normals // TODO: Only once per cycle
             if(DRAW_LINES) Debug.DrawRay(wall.transform.position, wall.up.normalized * 100, Color.yellow);
 
             Debug.Log("###################################################");
@@ -154,20 +156,13 @@ public class multiPlaneRayTracer
                 Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
                 DEBUG("worldRayDirection: " + worldRayDirection);
 
-                // Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
-
                 Debug.Log($"{shapeName}[{i}]: rayDirection: {rayDirection}");
 
-                // The parent gameobject is either planeManagerGO or _hits_ shapeName;
+                // The parent gameobject is either planeManagerGO or _hits_ shapeName // TOOO
                 GameObject parent = planeHits[w];
 
                 Ray ray = new Ray(rayOrigin, worldRayDirection);
                 Debug.Log($"Ray origin: {ray.origin}, direction: {ray.direction}, rayDirection: {rayDirection}");
-
-                // Vector3 closestHitpoint = Vector3.zero;
-                // float closestPlaneDist = float.MaxValue;
-
-                Debug.DrawRay(wall.transform.position, wall.up.normalized * 100, Color.yellow); // Print plane normals
 
                 float hit_distance;
                 if (plane.Raycast(ray, out hit_distance))
@@ -177,7 +172,6 @@ public class multiPlaneRayTracer
                     Debug.Log("Raycast hit Plane at distance: " + hit_distance);
                     Debug.Log("hitPoint wrt origin: " + hitPoint);
                     Debug.Log(wall.name + "_hitPoint: " + (hitPoint - wall.transform.position));
-
 
                     Vector3 scale = wall.transform.localScale;
                     Debug.Log("wall.transform.localScale: " + scale);
@@ -191,24 +185,17 @@ public class multiPlaneRayTracer
 
                     Vector3 t = wall_Rt.MultiplyPoint3x4(hitPoint - wall.transform.position);
 
-                    Debug.Log("Hitpoint wrt to " + wall.name + "Origin [t]:  " + t);
+                    Debug.Log($"Hitpoint wrt to {wall.name}, Origin [t]: " + t);
 
                     Vector3 hitPointInPlane = RotatePointAroundPivot(
                                                 t,
                                                 Vector3.zero,
                                                 new Vector3(-90.0f, 0.0f, 0.0f));
 
-                    Debug.Log("Point_on_Plane" + wall.name + ":  " + hitPointInPlane);
-
-                    // if (hit_distance < closestPlaneDist)
-                    // {
-                    //     closestPlaneDist = hit_distance;
-                    //     closestHitpoint = hitPoint;
-                    // }
+                    Debug.Log("Point_on_Plane" + wall.name + ":" + hitPointInPlane);
 
                     //--------------------------------------------------------
 
-                    // plane.ClosestPointOnPlane() is available in newer SDKs
                     Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1)); // FIXME : move this to planeManager ??
                     bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
 
@@ -232,33 +219,12 @@ public class multiPlaneRayTracer
                             go.GetComponent<Renderer>().material.color = Color.yellow;
                         }
                     }
-                    // FIXME : dont generate miss if not needed
                     else
                     {
                         go.name = "Miss";
                         go.GetComponent<Renderer>().material.color = Color.magenta;
 
-                        Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);  // FIXME
-
-                        Vector3 result = wallBounds.ClosestPoint(hitPointInPlane);
-
-                        Vector3 rotatedResult = RotatePointAroundPivot(
-                                                    result,
-                                                    Vector3.zero,
-                                                    new Vector3(90.0f, 0.0f, 0.0f));
-
-                        //Debug.Log("ClosestPoint(hitPointInPlane):  " + result);
-                        //Debug.Log("ROT_ClosestPoint(hitPointInPlane):  " + rotatedResult);
-                        Vector3 closestPointForHitInWorld = wall_Rt.transpose.MultiplyPoint3x4(rotatedResult);
-                        //Debug.Log("closestPointForHitInWorld():  " + closestPointForHitInWorld);
-
-                        GameObject hitNear = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        hitNear.transform.parent = parent.transform;
-                        hitNear.transform.position = closestPointForHitInWorld;
-                        hitNear.name = "Nearest";
-                        const float MS = 15.0f;
-                        hitNear.transform.localScale = new Vector3(MS, MS, MS);
-                        hitNear.GetComponent<Renderer>().material.color = Color.magenta;
+                        Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
                     }
 
                 }
@@ -433,31 +399,34 @@ public class multiPlaneRayTracer
                 Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1)); // FIXME : move this to planeManager ??
                 bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
 
-                GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                go.transform.parent = parent.transform;
-                go.transform.position = hitPoint;
-                go.transform.transform.rotation = wall.transform.rotation;
+                GameObject hit = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                hit.transform.parent = parent.transform;
+                hit.transform.position = hitPoint;
+                hit.transform.transform.rotation = wall.transform.rotation;
                 const float GS = 25.0f;
-                go.transform.localScale = new Vector3(GS, GS, GS);
+                hit.transform.localScale = new Vector3(GS, GS, GS);
+
+                // Get the Renderer component attached to the hit GameObject
+                Renderer hitRenderer = hit.GetComponent<Renderer>();
 
                 if (hitWithinBounds) {
-                    go.name = "Hit";
+                    hit.name = "Hit";
                     // TODO: Use wall color
                     if (wall == planes[0]) {
-                        go.GetComponent<Renderer>().material.color = Color.green;
+                        hitRenderer.material.color = Color.green;
                     }
                     else if (wall == planes[1]) {
-                        go.GetComponent<Renderer>().material.color = Color.blue;
+                        hitRenderer.material.color = Color.blue;
                     }
                     else if (wall == planes[2]) {
-                        go.GetComponent<Renderer>().material.color = Color.yellow;
+                        hitRenderer.material.color = Color.yellow;
                     }
                 }
                 // FIXME : dont generate miss if not needed
                 else
                 {
-                    go.name = "Miss";
-                    go.GetComponent<Renderer>().material.color = Color.magenta;
+                    hit.name = "Miss";
+                    hitRenderer.material.color = Color.magenta;
 
                     Debug.DrawRay(ray.origin, ray.direction * ent, Color.magenta);  // FIXME
 
