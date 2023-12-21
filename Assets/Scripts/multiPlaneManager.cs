@@ -9,7 +9,12 @@ public class multiPlaneManager : MonoBehaviour
 
     public bool hideMissedHits = true;
     public bool clearHits;
+
+    [Tooltip("Array of plane transforms.")]
     public Transform[] Planes;
+
+    [Tooltip("Array of plane colors.")]
+    public Color[] PlanesColors;
 
     const bool includeInactive = true;
 
@@ -72,14 +77,26 @@ public class multiPlaneManager : MonoBehaviour
     {
         // Destroy shape children hit objects
         Transform[] planeManagerChildren = getChildren(includeInactive);
-        foreach (var go in planeManagerChildren)
+        foreach (var child in planeManagerChildren)
         {
-            if (go.name == "_hits_" + shapeName)
+            if (child.name == "_hits_" + shapeName)
             {
-                Debug.Log("Destroying children hits: " + go.name);
-                for (int k = go.childCount - 1; k > 0; k--)
+                Destroy(child.gameObject);
+                return;
+                // FIXME : Only delete hits!
+                Transform [] nestedElements = child.GetComponentsInChildren<Transform>(includeInactive);
+                // Debug.Log($"Destroying [{child.childCount}] elements nested on {child.name}.");
+                Debug.Log($"Destroying hits nested on {child.name}.");
+                // FIXME : call clearAllHits with the children of the _hits_shapeName
+                // for (int k = child.childCount - 1; k > 0; k--)
+                // {
+                //     GameObject.Destroy(child.GetChild(k).gameObject);
+                // }
+                foreach (Transform go in nestedElements)
                 {
-                    GameObject.Destroy(go.GetChild(k).gameObject);
+                    // Exclude planeManager at position [0] and child planes
+                    if (go.name == "Cube" || go.name == "Hit" || go.name == "Nearest" || go.name == "Miss")
+                        Destroy(go.gameObject);
                 }
                 break;
             }
