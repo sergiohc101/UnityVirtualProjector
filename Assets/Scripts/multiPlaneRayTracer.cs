@@ -60,7 +60,10 @@ public class multiPlaneRayTracer
         // Foreach plane, compute raycast for all shape points. Apply line clipping to plane points.
         //
 
-        Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points.");
+        Debug.Log("------------------------------------------------------");
+        Transform[] planes = planeManager.getPlanes();
+        GameObject[] planeHits = new GameObject[planes.Length];
+        Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points. Using [{planes.Length}] planes.");
         LineRenderer line = null;
 
         // Look up shapeName in list
@@ -85,7 +88,7 @@ public class multiPlaneRayTracer
             if (!lineRendererFound) Debug.LogError($"lineRenderer '{shapeName}' not found!.");
 
             // Destroy all previous shape hits from planeManagerGO
-            planeManager.clearShapeHits(shapeName);
+            // planeManager.clearShapeHits(shapeName); // FIXME : Clear only hits
         }
         // Check for non-generic shape
         else if (shapeName != "noname")
@@ -94,10 +97,10 @@ public class multiPlaneRayTracer
             drawnShapes.Add(shapeName);
 
             // Create a new GameObject which contains a LineRenderer component for the shape
-            GameObject lineRenderer = new GameObject(
-                                        "_lineRenderer_" + (shapeName != "noname" ? shapeName : ""),
-                                        typeof(LineRenderer));
+            string lineRendererName = "_lineRenderer_" + (shapeName != "noname" ? shapeName : "");
+            GameObject lineRenderer = new GameObject(lineRendererName, typeof(LineRenderer));
             lineRenderer.transform.parent = rayTracerManager.transform;
+            Debug.Log($"Created '{lineRendererName}' LineRenderer.");
 
             line = lineRenderer.GetComponent<LineRenderer>();
 
@@ -109,30 +112,60 @@ public class multiPlaneRayTracer
             // Create a new GameObject which contains all "hits" for the shape
             GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
             hitsObject.transform.parent = planeManagerGO.transform;
+            // Create _hits_PlaneName GameObjects
+            int i = 0;
+            foreach (var wall in planes)
+            {
+                string hitsName = "_hits_" + (shapeName != "noname" ? shapeName : "") + "_" + wall.name;
+                GameObject hitsWall = new GameObject(hitsName);
+                hitsWall.transform.parent = hitsObject.transform;
+                planeHits[i] = hitsWall;
+                i++;
+                Debug.Log($"Created '{hitsName}' hits container.");
+            }
         }
 
         if (line != null)
-            line.positionCount = (shape.Length + 1) * 2;
+            line.positionCount = shape.Length; // FIXME: Use (shape.Length + 1) * 2; ??
         else
             Debug.LogError($"LineRenderer '{shapeName}' was not set!.");
 
-        int i = 0;
-        foreach (var rayDirection in shape)
+        // Iterate all planes retrieved from the PlaneManager
+        int w = 0;
+        foreach (var wall in planes)
         {
-            Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
-            DEBUG("worldRayDirection: " + worldRayDirection);
+            // Print plane normals
+            if(DRAW_LINES) Debug.DrawRay(wall.transform.position, wall.up.normalized * 100, Color.yellow);
 
-            Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
+            Plane plane = new Plane(); //(wall.transform.position, -wall.up.normalized); // Plane Constructor not working on old sdk.
+            plane.SetNormalAndPosition(-wall.up.normalized, wall.transform.position);
 
-            Debug.Log($"{shapeName}[{i}] :: rayDirection: {rayDirection} \t pointInNearestPlane: {pointInNearestPlane}");
+            Debug.Log($"Target='{wall.gameObject.name}' , position={wall.transform.position} , normal={wall.up.normalized} | planeNrml={plane.normal} | rayOrigin={rayOrigin}");
 
-            if (line != null)
-                line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
-            else
-                Debug.Log("LineRenderer was not set!.");
+            ////////////////////////////
+            int i = 0;
+            foreach (var rayDirection in shape)
+            {
+                Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
+                DEBUG("worldRayDirection: " + worldRayDirection);
 
-            i++;
+                Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
+
+                Debug.Log($"{shapeName}[{i}] :: rayDirection: {rayDirection}, pointInNearestPlane{pointInNearestPlane}");
+
+                if (line != null)
+                    line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
+                else
+                    Debug.Log("LineRenderer was not set!.");
+
+                i++;
+            }
+            ////////////////////////////
+
+            w++;
         }
+
+
     }
 
 
@@ -231,8 +264,7 @@ public class multiPlaneRayTracer
         }
 
         Ray ray = new Ray(rayOrigin, rayDirection);
-        Debug.Log($"Ray origin: {ray.origin} :: direction: {ray.direction}");
-
+        Debug.Log($"Ray origin: {ray.origin}, direction: {ray.direction}");
 
         Transform[] planes = planeManager.getPlanes();
         Debug.Log("Num Planes: " + planes.Length);
