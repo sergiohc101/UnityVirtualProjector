@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System;
+using System.Linq;
 
 /// <summary>
 /// The multiPlaneManager class is meant to hold the plane instances.
@@ -44,7 +44,7 @@ public class multiPlaneManager : MonoBehaviour
         // Hides missed hits
         foreach (Transform go in planeManagerChildren)
         {
-            go.gameObject.SetActive(!(go.name == "Miss") || !hideMissedHits);
+            go.gameObject.SetActive(!go.name.StartsWith("Miss") || !hideMissedHits);
         }
 
     }
@@ -57,8 +57,8 @@ public class multiPlaneManager : MonoBehaviour
         // Destroy all children hit objects
         foreach (Transform go in hitsContainer)
         {
-            // Check if the name is in the local array of objects to destroy
-            if (Array.Exists(ObjectsToDestroy, name => name == go.name))
+            // Check if the name starts with any string in the ObjectsToDestroy array
+            if (ObjectsToDestroy.Any(prefix => go.name.StartsWith(prefix)))
             {
                 Destroy(go.gameObject);
             }

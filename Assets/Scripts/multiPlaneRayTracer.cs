@@ -16,6 +16,8 @@ public class multiPlaneRayTracer
     void setRtMatrix(Matrix4x4 M) { Rt = M; }
     void DEBUG(string str) { if (DEBUG_LOGS) Debug.Log(str); }
 
+    private static readonly float hitScale = 25.0f; // TODO : make configurable
+
     public multiPlaneRayTracer(Matrix4x4 M, bool debug)
     {
         setRtMatrix(M);
@@ -181,7 +183,7 @@ public class multiPlaneRayTracer
                 Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
                 DEBUG("worldRayDirection: " + worldRayDirection);
 
-                Debug.Log($"{shapeName}[{i}]: rayDirection: {rayDirection}");
+                Debug.Log($"{shapeName}[{i+1}]: rayDirection: {rayDirection}");
 
                 // The parent gameobject is either planeManagerGO or _hits_ shapeName // TOOO
                 GameObject hitsContainer = planeHits[w];
@@ -228,14 +230,13 @@ public class multiPlaneRayTracer
                     hit.transform.parent = hitsContainer.transform;
                     hit.transform.position = hitPoint;
                     hit.transform.transform.rotation = wall.transform.rotation;
-                    const float GS = 25.0f;
-                    hit.transform.localScale = new Vector3(GS, GS, GS);
+                    hit.transform.localScale = new Vector3(hitScale, hitScale, hitScale);
 
                     // Get the Renderer component attached to the hit GameObject
                     Renderer hitRenderer = hit.GetComponent<Renderer>();
 
                     if (hitWithinBounds) {
-                        hit.name = "Hit";
+                        hit.name = "Hit" + "_" + (i+1);
                         // TODO: Use wall color
                         if      (wall == planes[0]) { hitRenderer.material.color = Color.green; }
                         else if (wall == planes[1]) { hitRenderer.material.color = Color.blue; }
@@ -243,7 +244,7 @@ public class multiPlaneRayTracer
                     }
                     else
                     {
-                        hit.name = "Miss";
+                        hit.name = "Miss" + "_" + (i+1);
                         hit.GetComponent<Renderer>().material.color = Color.magenta;
 
                         Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
