@@ -199,30 +199,27 @@ public class multiPlaneRayTracer
                     Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1)); // FIXME : move this to planeManager ??
                     bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
 
-                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    go.transform.parent = parent.transform;
-                    go.transform.position = hitPoint;
-                    go.transform.transform.rotation = wall.transform.rotation;
+                    GameObject hit = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    hit.transform.parent = parent.transform;
+                    hit.transform.position = hitPoint;
+                    hit.transform.transform.rotation = wall.transform.rotation;
                     const float GS = 25.0f;
-                    go.transform.localScale = new Vector3(GS, GS, GS);
+                    hit.transform.localScale = new Vector3(GS, GS, GS);
+
+                    // Get the Renderer component attached to the hit GameObject
+                    Renderer hitRenderer = hit.GetComponent<Renderer>();
 
                     if (hitWithinBounds) {
-                        go.name = "Hit";
+                        hit.name = "Hit";
                         // TODO: Use wall color
-                        if (wall == planes[0]) {
-                            go.GetComponent<Renderer>().material.color = Color.green;
-                        }
-                        else if (wall == planes[1]) {
-                            go.GetComponent<Renderer>().material.color = Color.blue;
-                        }
-                        else if (wall == planes[2]) {
-                            go.GetComponent<Renderer>().material.color = Color.yellow;
-                        }
+                        if      (wall == planes[0]) { hitRenderer.material.color = Color.green; }
+                        else if (wall == planes[1]) { hitRenderer.material.color = Color.blue; }
+                        else if (wall == planes[2]) { hitRenderer.material.color = Color.yellow; }
                     }
                     else
                     {
-                        go.name = "Miss";
-                        go.GetComponent<Renderer>().material.color = Color.magenta;
+                        hit.name = "Miss";
+                        hit.GetComponent<Renderer>().material.color = Color.magenta;
 
                         Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
                     }
@@ -412,15 +409,9 @@ public class multiPlaneRayTracer
                 if (hitWithinBounds) {
                     hit.name = "Hit";
                     // TODO: Use wall color
-                    if (wall == planes[0]) {
-                        hitRenderer.material.color = Color.green;
-                    }
-                    else if (wall == planes[1]) {
-                        hitRenderer.material.color = Color.blue;
-                    }
-                    else if (wall == planes[2]) {
-                        hitRenderer.material.color = Color.yellow;
-                    }
+                    if      (wall == planes[0]) { hitRenderer.material.color = Color.green; }
+                    else if (wall == planes[1]) { hitRenderer.material.color = Color.blue; }
+                    else if (wall == planes[2]) { hitRenderer.material.color = Color.yellow; }
                 }
                 // FIXME : dont generate miss if not needed
                 else
