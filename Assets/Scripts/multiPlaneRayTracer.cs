@@ -60,7 +60,7 @@ public class multiPlaneRayTracer
         // Foreach plane, compute raycast for all shape points. Apply line clipping to plane points.
         //
 
-        Debug.Log("------------------------------------------------------");
+        Debug.Log("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
         Transform[] planes = planeManager.getPlanes();
         GameObject[] planeHits = new GameObject[planes.Length];
         Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points. Using [{planes.Length}] planes.");
@@ -113,14 +113,14 @@ public class multiPlaneRayTracer
             GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
             hitsObject.transform.parent = planeManagerGO.transform;
             // Create _hits_PlaneName GameObjects
-            int i = 0;
+            int p = 0;
             foreach (var wall in planes)
             {
                 string hitsName = "_hits_" + (shapeName != "noname" ? shapeName : "") + "_" + wall.name;
                 GameObject hitsWall = new GameObject(hitsName);
                 hitsWall.transform.parent = hitsObject.transform;
-                planeHits[i] = hitsWall;
-                i++;
+                planeHits[p] = hitsWall;
+                p++;
                 Debug.Log($"Created '{hitsName}' hits container.");
             }
         }
@@ -137,30 +137,138 @@ public class multiPlaneRayTracer
             // Print plane normals
             if(DRAW_LINES) Debug.DrawRay(wall.transform.position, wall.up.normalized * 100, Color.yellow);
 
+            Debug.Log("###################################################");
+
             Plane plane = new Plane(); //(wall.transform.position, -wall.up.normalized); // Plane Constructor not working on old sdk.
             plane.SetNormalAndPosition(-wall.up.normalized, wall.transform.position);
 
-            Debug.Log($"Target='{wall.gameObject.name}' , position={wall.transform.position} , normal={wall.up.normalized} | planeNrml={plane.normal} | rayOrigin={rayOrigin}");
+            Debug.Log($"Target='{wall.name}' , position={wall.transform.position} , normal={wall.up.normalized} | planeNrml={plane.normal} | rayOrigin={rayOrigin}");
 
-            ////////////////////////////
+            // Iterate shape points
             int i = 0;
             foreach (var rayDirection in shape)
             {
+                Debug.Log("------------------------------------------------------");
+
                 Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
                 DEBUG("worldRayDirection: " + worldRayDirection);
 
-                Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
+                // Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
 
-                Debug.Log($"{shapeName}[{i}] :: rayDirection: {rayDirection}, pointInNearestPlane{pointInNearestPlane}");
+                Debug.Log($"{shapeName}[{i}]: rayDirection: {rayDirection}");
 
-                if (line != null)
-                    line.SetPosition(i, new Vector3(pointInNearestPlane.x, pointInNearestPlane.y, pointInNearestPlane.z - 5)); //pointInNearestPlane);
+                // The parent gameobject is either planeManagerGO or _hits_ shapeName;
+                GameObject parent = planeHits[w];
+
+                Ray ray = new Ray(rayOrigin, worldRayDirection);
+                Debug.Log($"Ray origin: {ray.origin}, direction: {ray.direction}, rayDirection: {rayDirection}");
+
+                // Vector3 closestHitpoint = Vector3.zero;
+                // float closestPlaneDist = float.MaxValue;
+
+                Debug.DrawRay(wall.transform.position, wall.up.normalized * 100, Color.yellow); // Print plane normals
+
+                float hit_distance;
+                if (plane.Raycast(ray, out hit_distance))
+                {
+
+                    Vector3 hitPoint = ray.GetPoint(hit_distance);
+                    Debug.Log("Raycast hit Plane at distance: " + hit_distance);
+                    Debug.Log("hitPoint wrt origin: " + hitPoint);
+                    Debug.Log(wall.name + "_hitPoint: " + (hitPoint - wall.transform.position));
+
+
+                    Vector3 scale = wall.transform.localScale;
+                    Debug.Log("wall.transform.localScale: " + scale);
+                    Matrix4x4 wall_Rt = wall.transform.localToWorldMatrix;
+                    // Remove matrix scale
+                    wall_Rt.SetColumn(0, wall_Rt.GetColumn(0) / scale[0]);
+                    wall_Rt.SetColumn(1, wall_Rt.GetColumn(1) / scale[1]);
+                    wall_Rt.SetColumn(2, wall_Rt.GetColumn(2) / scale[2]);
+                    // Transpose Matrix
+                    wall_Rt = wall_Rt.transpose;
+
+                    Vector3 t = wall_Rt.MultiplyPoint3x4(hitPoint - wall.transform.position);
+
+                    Debug.Log("Hitpoint wrt to " + wall.name + "Origin [t]:  " + t);
+
+                    Vector3 hitPointInPlane = RotatePointAroundPivot(
+                                                t,
+                                                Vector3.zero,
+                                                new Vector3(-90.0f, 0.0f, 0.0f));
+
+                    Debug.Log("Point_on_Plane" + wall.name + ":  " + hitPointInPlane);
+
+                    // if (hit_distance < closestPlaneDist)
+                    // {
+                    //     closestPlaneDist = hit_distance;
+                    //     closestHitpoint = hitPoint;
+                    // }
+
+                    //--------------------------------------------------------
+
+                    // plane.ClosestPointOnPlane() is available in newer SDKs
+                    Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1)); // FIXME : move this to planeManager ??
+                    bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
+
+                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    go.transform.parent = parent.transform;
+                    go.transform.position = hitPoint;
+                    go.transform.transform.rotation = wall.transform.rotation;
+                    const float GS = 25.0f;
+                    go.transform.localScale = new Vector3(GS, GS, GS);
+
+                    if (hitWithinBounds) {
+                        go.name = "Hit";
+                        // TODO: Use wall color
+                        if (wall == planes[0]) {
+                            go.GetComponent<Renderer>().material.color = Color.green;
+                        }
+                        else if (wall == planes[1]) {
+                            go.GetComponent<Renderer>().material.color = Color.blue;
+                        }
+                        else if (wall == planes[2]) {
+                            go.GetComponent<Renderer>().material.color = Color.yellow;
+                        }
+                    }
+                    // FIXME : dont generate miss if not needed
+                    else
+                    {
+                        go.name = "Miss";
+                        go.GetComponent<Renderer>().material.color = Color.magenta;
+
+                        Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);  // FIXME
+
+                        Vector3 result = wallBounds.ClosestPoint(hitPointInPlane);
+
+                        Vector3 rotatedResult = RotatePointAroundPivot(
+                                                    result,
+                                                    Vector3.zero,
+                                                    new Vector3(90.0f, 0.0f, 0.0f));
+
+                        //Debug.Log("ClosestPoint(hitPointInPlane):  " + result);
+                        //Debug.Log("ROT_ClosestPoint(hitPointInPlane):  " + rotatedResult);
+                        Vector3 closestPointForHitInWorld = wall_Rt.transpose.MultiplyPoint3x4(rotatedResult);
+                        //Debug.Log("closestPointForHitInWorld():  " + closestPointForHitInWorld);
+
+                        GameObject hitNear = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        hitNear.transform.parent = parent.transform;
+                        hitNear.transform.position = closestPointForHitInWorld;
+                        hitNear.name = "Nearest";
+                        const float MS = 15.0f;
+                        hitNear.transform.localScale = new Vector3(MS, MS, MS);
+                        hitNear.GetComponent<Renderer>().material.color = Color.magenta;
+                    }
+
+                }
                 else
-                    Debug.Log("LineRenderer was not set!.");
+                {
+                    Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
+                    Debug.Log("No intersection");
+                }
 
                 i++;
             }
-            ////////////////////////////
 
             w++;
         }
@@ -251,7 +359,7 @@ public class multiPlaneRayTracer
     // This function calls the trace function for a point intersecting all plane references handled by the PlaneManager
     public Vector3 multiPlaneTrace(Vector3 rayOrigin, Vector3 rayDirection, string shapeName = "noname")
     {
-         // The parent gameobject is either planeManagerGO or _hits_ shapeName;
+        // The parent gameobject is either planeManagerGO or _hits_ shapeName;
         GameObject parent = planeManagerGO;
         Transform[] planeManagerChildren = planeManagerGO.GetComponentsInChildren<Transform>(true);
         foreach (var go in planeManagerChildren)
