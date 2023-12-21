@@ -65,6 +65,7 @@ public class multiPlaneRayTracer
         GameObject[] planeHits = new GameObject[planes.Length];
         Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points. Using [{planes.Length}] planes.");
         LineRenderer line = null;
+        bool foundHitsContainer = false; // TODO: Implement
 
         // Look up shapeName in list
         if (drawnShapes.Contains(shapeName))
@@ -88,7 +89,34 @@ public class multiPlaneRayTracer
             if (!lineRendererFound) Debug.LogError($"lineRenderer '{shapeName}' not found!.");
 
             // Destroy all previous shape hits from planeManagerGO
-            planeManager.clearShapeHits(shapeName); // FIXME : Clear only hits
+            planeManager.clearShapeHits(shapeName);
+
+            // The parent gameobject is either planeManagerGO or _hits_ shapeName; // TODO
+            // GameObject parent = planeManagerGO;
+            Transform[] planeManagerChildren = planeManager.getChildren(includeInactive);
+            foreach (var child in planeManagerChildren)
+            {
+                if (child.name == "_hits_" + shapeName)
+                {
+                    Debug.Log($"Got hits container: '{child.name}'.");
+                    // parent = child.gameObject;
+                    // Retrieve planeHits gameobjects
+                    if(child.childCount == planes.Length){
+                        Debug.Log($"Got [{child.childCount}] hits containers on '{child.name}'.");
+                        foundHitsContainer = true;
+                        Transform [] nestedElements = child.GetComponentsInChildren<Transform>(includeInactive);
+                        for (int k = 0; k < child.childCount; k++)
+                        {
+                            planeHits[k] = child.GetChild(k).gameObject;
+                        }
+                    }
+                    else{
+                        Debug.LogError($"Something changed for hits container '{child.name}'.");
+                        // return;
+                    }
+                    break;
+                }
+            }
         }
         // Check for non-generic shape
         else if (shapeName != "noname")
@@ -108,24 +136,21 @@ public class multiPlaneRayTracer
             line.startColor = line.endColor = Color.red; // TODO: Use some editor color
             line.startWidth = line.endWidth = 5.0f; // TODO: Use lineRendererWidth
             line.loop = true; // TODO : Make configurable
-        }
 
-        // TODO: Rework this logic to retrieve container GameObjects
-        {
-        // Create a new GameObject which contains all "hits" for the shape
-        GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
-        hitsObject.transform.parent = planeManagerGO.transform;
-        // Create _hits_PlaneName GameObjects
-        int p = 0;
-        foreach (var wall in planes)
-        {
-            string hitsName = "_hits_" + (shapeName != "noname" ? shapeName : "") + "_" + wall.name;
-            GameObject hitsWall = new GameObject(hitsName);
-            hitsWall.transform.parent = hitsObject.transform;
-            planeHits[p] = hitsWall;
-            p++;
-            Debug.Log($"Created '{hitsName}' hits container.");
-        }
+            // Create a new GameObject which contains all "hits" for the shape
+            GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
+            hitsObject.transform.parent = planeManagerGO.transform;
+            // Create _hits_PlaneName GameObjects
+            int p = 0;
+            foreach (var wall in planes)
+            {
+                string hitsName = "_hits_" + (shapeName != "noname" ? shapeName : "") + "_" + wall.name;
+                GameObject hitsWall = new GameObject(hitsName);
+                hitsWall.transform.parent = hitsObject.transform;
+                planeHits[p] = hitsWall;
+                p++;
+                Debug.Log($"Created '{hitsName}' hits container.");
+            }
         }
 
         if (line != null)
@@ -159,7 +184,7 @@ public class multiPlaneRayTracer
                 Debug.Log($"{shapeName}[{i}]: rayDirection: {rayDirection}");
 
                 // The parent gameobject is either planeManagerGO or _hits_ shapeName // TOOO
-                GameObject parent = planeHits[w];
+                GameObject hitsContainer = planeHits[w];
 
                 Ray ray = new Ray(rayOrigin, worldRayDirection);
                 Debug.Log($"Ray origin: {ray.origin}, direction: {ray.direction}, rayDirection: {rayDirection}");
@@ -200,7 +225,7 @@ public class multiPlaneRayTracer
                     bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
 
                     GameObject hit = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    hit.transform.parent = parent.transform;
+                    hit.transform.parent = hitsContainer.transform;
                     hit.transform.position = hitPoint;
                     hit.transform.transform.rotation = wall.transform.rotation;
                     const float GS = 25.0f;

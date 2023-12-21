@@ -55,10 +55,10 @@ public class multiPlaneManager : MonoBehaviour
     }
 
 
-    public void clearAllHits(Transform[] planeManagerChildren)
+    public void clearAllHits(Transform[] hitsContainer)
     {
         // Destroy all children hit objects
-        foreach (Transform go in planeManagerChildren)
+        foreach (Transform go in hitsContainer)
         {
             // Exclude planeManager at position [0] and child planes
             if (go.name == "Cube" || go.name == "Hit" || go.name == "Nearest" || go.name == "Miss")
@@ -81,23 +81,9 @@ public class multiPlaneManager : MonoBehaviour
         {
             if (child.name == "_hits_" + shapeName)
             {
-                Destroy(child.gameObject);
-                return;
-                // FIXME : Only delete hits!
-                Transform [] nestedElements = child.GetComponentsInChildren<Transform>(includeInactive);
-                // Debug.Log($"Destroying [{child.childCount}] elements nested on {child.name}.");
                 Debug.Log($"Destroying hits nested on {child.name}.");
-                // FIXME : call clearAllHits with the children of the _hits_shapeName
-                // for (int k = child.childCount - 1; k > 0; k--)
-                // {
-                //     GameObject.Destroy(child.GetChild(k).gameObject);
-                // }
-                foreach (Transform go in nestedElements)
-                {
-                    // Exclude planeManager at position [0] and child planes
-                    if (go.name == "Cube" || go.name == "Hit" || go.name == "Nearest" || go.name == "Miss")
-                        Destroy(go.gameObject);
-                }
+                Transform [] nestedElements = child.GetComponentsInChildren<Transform>(includeInactive);
+                clearAllHits(nestedElements);
                 break;
             }
         }
