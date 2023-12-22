@@ -79,6 +79,8 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         // FIXME : Refactor multi plane RayTracer, initialize here
     }
 
+    static readonly float TAU = 2.0f * Mathf.PI;
+    static readonly float TAU_Deg = TAU * Mathf.Rad2Deg; // 360
 
     // Update is called once per frame
     void Update()
@@ -89,9 +91,9 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         if (MOVE_CAM)
         {
             // Projector circular movement
-            float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
+            float camSpeed = 360.0f / timeToCompleteCircle;
             currentAngleDeg += Time.deltaTime * camSpeed;
-            if (currentAngleDeg >= Mathf.PI * 2.0f * Mathf.Rad2Deg) currentAngleDeg = 0.0f;
+            if (Mathf.Abs(currentAngleDeg) >= 360.0f) currentAngleDeg = 0.0f;
 
             float Cx = camTrajectoryRadius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
             float Cy = camTrajectoryRadius * Mathf.Sin(currentAngleDeg * Mathf.Deg2Rad);
@@ -100,9 +102,9 @@ public class multiPlaneVirtualProjector : MonoBehaviour
         if (LOOK_AROUND)
         {
             // Projector looks around in space
-            float camSpeed = Mathf.PI * 2.0f * Mathf.Rad2Deg / timeToCompleteCircle;
+            float camSpeed = 360.0f / timeToCompleteCircle;
             currentAngleDeg += Time.deltaTime * camSpeed;
-            if (currentAngleDeg >= Mathf.PI * 2.0f * Mathf.Rad2Deg) currentAngleDeg = 0.0f;
+            if (Mathf.Abs(currentAngleDeg) >= 360.0f) currentAngleDeg = 0.0f;
 
             camLookAt.x = camTrajectoryRadius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
             transform.LookAt(camLookAt);
@@ -224,11 +226,9 @@ public class multiPlaneVirtualProjector : MonoBehaviour
                 // polyLine.SetPosition( 3 , new Vector3(xmax,ymax, -1.0f ) );
             }
 
-            //multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
-            //multiPlaneRayTracer.setup(planePoint, planeNormal, rayPosition);
             Vector3[] polyShape = new Vector3[Mathf.Abs(polyVerts)];
 
-            float angleStep = (Mathf.PI * 2.0f) / polyVerts;
+            float angleStep = TAU / polyVerts;
             for (int i = 0; i < polyVerts; i++)
             {
                 // Limit size based either on polyRadius input or focal distance
@@ -241,7 +241,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
             }
             //multiPlaneRayTracer.traceShape(polyShape, transform.position, polyLine, lineRendererOffset, DRAW_LINES);
             multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
-            multiPlaneRayTracer.multiPlaneTraceShape(transform.position, polyShape, DRAW_LINES, "POLYGON");
+            multiPlaneRayTracer.NEW_multiPlaneTraceShape(transform.position, polyShape, DRAW_LINES, "POLYGON");
 
         }
 
