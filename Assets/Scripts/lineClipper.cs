@@ -39,6 +39,52 @@ public class lineClipper : MonoBehaviour
         Vector4 clippedLine3 = ClipLineToRectangle(line3.x, line3.y, line3.z, line3.w, rectCenter, rectWidth, rectHeight);
         renderLine(line3, Color.cyan, "original_line3");
         renderLine(clippedLine3, Color.red, "clipped_line3");
+
+        drawShape();
+    }
+
+    void drawShape()
+    {
+        int sides = 6; // Number of sides for the geometric shape
+        float radius = 1f; // Radius of the geometric shape
+        Vector3[] polygon = new Vector3[sides + 1];
+
+        for (int i = 0; i <= sides; i++)
+        {
+            float angle = i * 2 * Mathf.PI / sides;
+            float x = Mathf.Cos(angle) * radius;
+            float y = Mathf.Sin(angle) * radius;
+
+            polygon[i] = new Vector3(x, y, 0f);
+        }
+
+        ////////////
+        // Transformations
+        ////////////
+        // Translate the polygon (e.g., move it to the right by 2 units)
+        Vector3 translation = new Vector3(0f, 00f, 0f);
+        for (int i = 0; i <= sides; i++)
+        {
+            polygon[i] += translation;
+        }
+
+        // Rotate the polygon (e.g., rotate it by 45 degrees around the z-axis)
+        float rotationAngle = 70f;
+        Quaternion rotation = Quaternion.Euler(0f, 0f, rotationAngle);
+        for (int i = 0; i <= sides; i++)
+        {
+            polygon[i] = rotation * polygon[i];
+        }
+
+        // Scale the polygon (e.g., scale it uniformly by a factor of 1.5)
+        float scaleFactor = 300.0f;
+        for (int i = 0; i <= sides; i++)
+        {
+            polygon[i] *= scaleFactor;
+        }
+        ////////////
+
+        clipShapeToRectangle(polygon);
     }
 
     void renderLine(Vector4 lineCoordinates, Color lineColor, string lineName = "Line")
@@ -72,6 +118,37 @@ public class lineClipper : MonoBehaviour
     // {
     //
     // }
+
+    public Vector3[] clipShapeToRectangle(Vector3[] shape)
+    {
+        Debug.Log($"Clipping shape containing [{shape.Length}] points.");
+
+        Vector3[] clippedShape = new Vector3[shape.Length];
+
+        // Render original shape
+        for (int i = 0; i < shape.Length; i++)
+        {
+            int j = (i+1) % shape.Length;
+            Vector2 p1 = new Vector2(shape[i].x, shape[i].y);
+            Vector2 p2 = new Vector2(shape[j].x, shape[j].y);
+            Vector4 segment = new Vector4(p1.x, p1.y, p2.x, p2.y);
+            renderLine(segment,Color.green, "polygon_"+i);
+        }
+
+        // Render clipped shape
+        Vector2 rectCenter = new Vector2(0, 0);
+        float rectWidth = 50f * 2 * SCALE;
+        float rectHeight = 50f * 2 * SCALE;
+
+        for (int i = 0; i < shape.Length; i++)
+        {
+            int j = (i+1) % shape.Length;
+            Vector4 clippedLine = ClipLineToRectangle(shape[i].x, shape[i].y, shape[j].x, shape[j].y, rectCenter, rectWidth, rectHeight);
+            renderLine(clippedLine,Color.magenta, "clipped_polygon_"+i);
+        }
+
+        return clippedShape;
+    }
 
     Vector4 ClipLineToRectangle(float x1, float y1, float x2, float y2, Vector2 rectCenter, float rectWidth, float rectHeight)
     {
