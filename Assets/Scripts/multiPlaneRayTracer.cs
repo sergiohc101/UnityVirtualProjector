@@ -47,6 +47,19 @@ public class multiPlaneRayTracer
         point = dir + pivot;                    // Compute rotated point
         return point;
     }
+    private static int frameCount;
+    void drawPlaneNormals()
+    {
+        int currentFrame = Time.frameCount;
+        if(frameCount < currentFrame)
+        {
+            Debug.Log("(!) drawPlaneNormals new call!.");
+            // TODO : Move draw stuff here
+        }
+         // Update the frame count
+        frameCount = currentFrame;
+        Debug.Log("called drawPlaneNormals on frame: " + frameCount);
+    }
 
     // TODO: Test on old SDK for retrocompatibility
     public void NEW_multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
@@ -160,6 +173,9 @@ public class multiPlaneRayTracer
         else
             Debug.LogError($"LineRenderer '{shapeName}' was not set!.");
 
+        // Print plane normals // TODO: Only once per cycle
+        if(DRAW_LINES) drawPlaneNormals();
+
         // Iterate all planes retrieved from the PlaneManager
         int w = 0;
         foreach (var wall in planes)
@@ -174,8 +190,9 @@ public class multiPlaneRayTracer
 
             Debug.Log($"Target='{wall.name}' , position={wall.transform.position} , normal={wall.up.normalized} | planeNrml={plane.normal} | rayOrigin={rayOrigin}");
 
-            // Iterate shape points
+            // Iterate shape points to compute hitsOnPlane
             int i = 0;
+            Vector3[] hitsOnPlane = new Vector3[shape.Length];
             foreach (var rayDirection in shape)
             {
                 Debug.Log("------------------------------------------------------");
@@ -196,9 +213,10 @@ public class multiPlaneRayTracer
                 {
 
                     Vector3 hitPoint = ray.GetPoint(hit_distance);
+                    hitsOnPlane[i] = hitPoint;
                     Debug.Log("Raycast hit Plane at distance: " + hit_distance);
                     Debug.Log("hitPoint wrt origin: " + hitPoint);
-                    Debug.Log(wall.name + "_hitPoint: " + (hitPoint - wall.transform.position));
+                    Debug.Log(wall.name + " hitPoint: " + (hitPoint - wall.transform.position));
 
                     Vector3 scale = wall.transform.localScale;
                     Debug.Log("wall.transform.localScale: " + scale);
@@ -253,12 +271,20 @@ public class multiPlaneRayTracer
                 }
                 else
                 {
+                    Debug.Log($"No intersection for {shapeName}[{i+1}]");
                     Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
-                    Debug.Log("No intersection");
                 }
 
                 i++;
             }
+
+            // Clip hitsOnPlane
+            foreach(var x in hitsOnPlane)
+            {
+                // Debug.Log(x);
+            }
+            // lineClipper.clipShapeToRectangle(hitsOnPlane);
+
 
             w++;
         }
