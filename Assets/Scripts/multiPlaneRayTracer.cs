@@ -279,11 +279,36 @@ public class multiPlaneRayTracer
             }
 
             // Clip hitsOnPlane
+            Debug.Log(" hitsOnPlane:" +  hitsOnPlane);
             foreach(var x in hitsOnPlane)
             {
                 // Debug.Log(x);
             }
-            // lineClipper.clipShapeToRectangle(hitsOnPlane);
+
+            float rectWidth = 500;
+            float rectHeight = 500;
+            // Clip shape to plane
+            Vector4[] clippedShape = new Vector4[shape.Length];
+            clippedShape = lineClipper.clipShapeToRectangle(hitsOnPlane, rectWidth, rectHeight);
+
+            line.positionCount = clippedShape.Length * 2;
+
+            float Z = -5.0f;
+            // Render clipped shape
+            for (int k = 0; k < clippedShape.Length; k++)
+            {
+                int j = (k+1) % clippedShape.Length;
+                Vector4 clippedLine= lineClipper.ClipLineToRectangle(clippedShape[k].x, clippedShape[k].y, clippedShape[k].z, clippedShape[k].w, rectWidth, rectHeight);
+                Vector4 clippedLine2= lineClipper.ClipLineToRectangle(clippedShape[k].z, clippedShape[k].w, clippedShape[j].x, clippedShape[j].y, rectWidth, rectHeight);
+                // renderLine(clippedLine, Color.magenta, "clipped_polygon_" + i);
+                // renderLine(clippedLine2, Color.red, "clipped_polygon_" + i +  "_"); // FIXME
+
+                Vector3 S1 = new Vector3(clippedShape[k].x, clippedShape[k].y, hitsOnPlane[k].z);
+                // line.SetPosition(k,S1);
+            }
+
+            // nothing yet
+
 
 
             w++;
