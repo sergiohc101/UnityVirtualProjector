@@ -42,8 +42,8 @@ public static Vector4 ClipLineToRectangle(float x1, float y1, float x2, float y2
     float rectTop = rectCenter.y + rectHeight / 2f;
     float rectBottom = rectCenter.y - rectHeight / 2f;
 
-    Debug.Log($"Rectangle center: {rectCenter}");
-    Debug.Log($"Rectangle corners: {rectLeft}, {rectRight}, {rectTop}, {rectBottom}");
+    // Debug.Log($"Rectangle center: {rectCenter}");
+    // Debug.Log($"Rectangle corners: {rectLeft}, {rectRight}, {rectTop}, {rectBottom}");
     // renderLine(new Vector4(rectLeft, rectTop, rectRight, rectBottom), Color.magenta , "_Rectangle_corners");
     // renderLine(new Vector4(rectLeft, rectTop, rectRight, rectTop), Color.green , "_Rectangle_top");
     // renderLine(new Vector4(rectLeft, rectBottom, rectRight, rectBottom), Color.green , "_Rectangle_bottom");
@@ -53,7 +53,7 @@ public static Vector4 ClipLineToRectangle(float x1, float y1, float x2, float y2
     // Compute region codes for both endpoints
     int code1 = ComputeRegionCode(x1, y1, rectLeft, rectRight, rectTop, rectBottom);
     int code2 = ComputeRegionCode(x2, y2, rectLeft, rectRight, rectTop, rectBottom);
-    Debug.Log($"Region codes: {code1},{code2}");
+    // Debug.Log($"Region codes: {code1},{code2}");
 
     // Both endpoints are inside or on the boundary, return the original line
     if ((code1 | code2) == 0)
@@ -123,11 +123,11 @@ public static Vector4 ClipLineToRectangle(float x1, float y1, float x2, float y2
     return new Vector4(x1, y1, x2, y2);
 }
 
-public static Vector3[] clipShapeToRectangle(Vector3[] shape, Vector2 rectCenter, float rectWidth, float rectHeight)
+public static Vector4[] clipShapeToRectangle(Vector3[] shape, Vector2 rectCenter, float rectWidth, float rectHeight)
 {
     Debug.Log($"Clipping shape containing [{shape.Length}] points.");
 
-    Vector3[] clippedShape = new Vector3[shape.Length];
+    Vector4[] clippedShape = new Vector4[shape.Length];
 
     for (int i = 0; i < shape.Length; i++)
     {
@@ -154,21 +154,21 @@ public class lineClipperRenderer : MonoBehaviour
         float rectHeight = 50f * 2 * SCALE;
         var line = new Vector4(-50, 75, 75, -50) * SCALE; // Apply the scale to the line coordinates
 
-        Debug.Log($"Original Line: {line}");
-        Vector4 clippedLine = lineClipper.ClipLineToRectangle(line.x, line.y, line.z, line.w, rectCenter, rectWidth, rectHeight);
-        Debug.Log($"Clipped Line Segment: {clippedLine.x}, {clippedLine.y}, {clippedLine.z}, {clippedLine.w}");
-        renderLine(line, Color.cyan, "original_line");
-        renderLine(clippedLine, Color.red, "clipped_line");
+        // Debug.Log($"Original Line: {line}");
+        // Vector4 clippedLine = lineClipper.ClipLineToRectangle(line.x, line.y, line.z, line.w, rectCenter, rectWidth, rectHeight);
+        // Debug.Log($"Clipped Line Segment: {clippedLine.x}, {clippedLine.y}, {clippedLine.z}, {clippedLine.w}");
+        // renderLine(line, Color.cyan, "original_line");
+        // renderLine(clippedLine, Color.red, "clipped_line");
 
-        var line2 = new Vector4(-70, -20, 75, -50) * SCALE;
-        Vector4 clippedLine2 = lineClipper.ClipLineToRectangle(line2.x, line2.y, line2.z, line2.w, rectCenter, rectWidth, rectHeight);
-        renderLine(line2, Color.cyan, "original_line2");
-        renderLine(clippedLine2, Color.red, "clipped_line2");
+        // var line2 = new Vector4(-70, -20, 75, -50) * SCALE;
+        // Vector4 clippedLine2 = lineClipper.ClipLineToRectangle(line2.x, line2.y, line2.z, line2.w, rectCenter, rectWidth, rectHeight);
+        // renderLine(line2, Color.cyan, "original_line2");
+        // renderLine(clippedLine2, Color.red, "clipped_line2");
 
-        var line3 = new Vector4(-70, 100, -75, -150) * SCALE;
-        Vector4 clippedLine3 = lineClipper.ClipLineToRectangle(line3.x, line3.y, line3.z, line3.w, rectCenter, rectWidth, rectHeight);
-        renderLine(line3, Color.cyan, "original_line3");
-        renderLine(clippedLine3, Color.red, "clipped_line3");
+        // var line3 = new Vector4(-70, 100, -75, -150) * SCALE;
+        // Vector4 clippedLine3 = lineClipper.ClipLineToRectangle(line3.x, line3.y, line3.z, line3.w, rectCenter, rectWidth, rectHeight);
+        // renderLine(line3, Color.cyan, "original_line3");
+        // renderLine(clippedLine3, Color.red, "clipped_line3");
 
         // Draw a test shape
         renderShape();
@@ -181,66 +181,67 @@ public class lineClipperRenderer : MonoBehaviour
     {
         int sides = 6; // Number of sides for the geometric shape
         float radius = 1f; // Radius of the geometric shape
-        Vector3[] polygon = new Vector3[sides + 1];
+        Vector3[] shape = new Vector3[sides];
+        Vector4[] clipped_shape = new Vector4[sides];
 
-        for (int i = 0; i <= sides; i++)
+        for (int i = 0; i < sides; i++)
         {
             float angle = i * 2 * Mathf.PI / sides;
             float x = Mathf.Cos(angle) * radius;
             float y = Mathf.Sin(angle) * radius;
 
-            polygon[i] = new Vector3(x, y, 0f);
+            shape[i] = new Vector3(x, y, 0f);
         }
 
         ////////////
         // Transformations
         ////////////
-        // Translate the polygon (e.g., move it to the right by 2 units)
+        // Translate the shape (e.g., move it to the right by 2 units)
         Vector3 translation = new Vector3(0f, 00f, 0f);
-        for (int i = 0; i <= sides; i++)
+        for (int i = 0; i < sides; i++)
         {
-            polygon[i] += translation;
+            shape[i] += translation;
         }
 
-        // Rotate the polygon (e.g., rotate it by 45 degrees around the z-axis)
+        // Rotate the shape (e.g., rotate it by 45 degrees around the z-axis)
         float rotationAngle = 70f;
         Quaternion rotation = Quaternion.Euler(0f, 0f, rotationAngle);
-        for (int i = 0; i <= sides; i++)
+        for (int i = 0; i < sides; i++)
         {
-            polygon[i] = rotation * polygon[i];
+            shape[i] = rotation * shape[i];
         }
 
-        // Scale the polygon (e.g., scale it uniformly by a factor of 1.5)
+        // Scale the shape (e.g., scale it uniformly by a factor of 1.5)
         float scaleFactor = 300.0f;
-        for (int i = 0; i <= sides; i++)
+        for (int i = 0; i < sides; i++)
         {
-            polygon[i] *= scaleFactor;
+            shape[i] *= scaleFactor;
         }
         ////////////
 
         // Render original shape
-        for (int i = 0; i < polygon.Length; i++)
+        for (int i = 0; i < shape.Length; i++)
         {
-            int j = (i+1) % polygon.Length;
-            Vector2 p1 = new Vector2(polygon[i].x, polygon[i].y);
-            Vector2 p2 = new Vector2(polygon[j].x, polygon[j].y);
+            int j = (i+1) % shape.Length;
+            Vector2 p1 = new Vector2(shape[i].x, shape[i].y);
+            Vector2 p2 = new Vector2(shape[j].x, shape[j].y);
             Vector4 segment = new Vector4(p1.x, p1.y, p2.x, p2.y);
-            renderLine(segment,Color.green, "polygon_"+i);
+            renderLine(segment, Color.green, "polygon_"+i);
         }
 
         // Render clipped shape
         Vector2 rectCenter = new Vector2(0, 0);
-        float rectWidth = 50f * 2 ; // FIXME
-        float rectHeight = 50f * 2 ; // FIXME
+        float rectWidth = 50f * 2 * SCALE; // FIXME
+        float rectHeight = 50f * 2 * SCALE; // FIXME
 
         // Clip shape to plane
-        lineClipper.clipShapeToRectangle(polygon, rectCenter, rectWidth, rectHeight);
+        clipped_shape = lineClipper.clipShapeToRectangle(shape, rectCenter, rectWidth, rectHeight);
+
         // Render clipped shape
-        for (int i = 0; i < polygon.Length; i++)
+        for (int i = 0; i < clipped_shape.Length; i++)
         {
-            int j = (i+1) % polygon.Length;
-            Vector4 clippedLine = lineClipper.ClipLineToRectangle(polygon[i].x, polygon[i].y, polygon[j].x, polygon[j].y, rectCenter, rectWidth, rectHeight);
-            renderLine(clippedLine,Color.magenta, "clipped_polygon_"+i);
+            Vector4 clippedLine= lineClipper.ClipLineToRectangle(clipped_shape[i].x, clipped_shape[i].y, clipped_shape[i].z, clipped_shape[i].w, rectCenter, rectWidth, rectHeight);
+            renderLine(clippedLine, Color.magenta, "clipped_polygon_"+i);
         }
 
 
