@@ -279,7 +279,7 @@ public class multiPlaneRayTracer
             }
 
             // Clip hitsOnPlane
-            Debug.Log(" hitsOnPlane:" +  hitsOnPlane);
+            Debug.Log($"hitsOnPlane[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnPlane));
             foreach(var x in hitsOnPlane)
             {
                 // Debug.Log(x);
@@ -291,7 +291,8 @@ public class multiPlaneRayTracer
             Vector4[] clippedShape = new Vector4[shape.Length];
             clippedShape = lineClipper.clipShapeToRectangle(hitsOnPlane, rectWidth, rectHeight);
 
-            line.positionCount = clippedShape.Length * 2;
+            line.positionCount = clippedShape.Length + 1;
+            line.numCornerVertices = line.positionCount;
 
             float Z = -5.0f;
             // Render clipped shape
@@ -302,14 +303,11 @@ public class multiPlaneRayTracer
                 Vector4 clippedLine2= lineClipper.ClipLineToRectangle(clippedShape[k].z, clippedShape[k].w, clippedShape[j].x, clippedShape[j].y, rectWidth, rectHeight);
                 // renderLine(clippedLine, Color.magenta, "clipped_polygon_" + i);
                 // renderLine(clippedLine2, Color.red, "clipped_polygon_" + i +  "_"); // FIXME
-
-                Vector3 S1 = new Vector3(clippedShape[k].x, clippedShape[k].y, hitsOnPlane[k].z);
-                // line.SetPosition(k,S1);
+                Vector3 S1 = new Vector3(clippedShape[k].x, clippedShape[k].y, Z/* hitsOnPlane[k].z */ ) ;
+                Vector3 S2 = new Vector3(clippedShape[k].z, clippedShape[k].w, Z /* hitsOnPlane[k].z */ );
+                line.SetPosition(k,S1);
+                line.SetPosition(k+1,S2);
             }
-
-            // nothing yet
-
-
 
             w++;
         }
