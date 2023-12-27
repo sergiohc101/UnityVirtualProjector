@@ -78,8 +78,8 @@ public class multiPlaneRayTracer
         Debug.Log("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
         Transform[] planes = planeManager.getPlanes();
         GameObject[] planeHits = new GameObject[planes.Length];
+        LineRenderer[] shapeRenderers = new LineRenderer[planes.Length];
         Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points. Using [{planes.Length}] planes.");
-        LineRenderer line = null;
         bool foundHitsContainer = false; // TODO: Implement
 
         // Look up shapeName in list
@@ -93,11 +93,15 @@ public class multiPlaneRayTracer
             Transform[] rayTracerManagerChildren = rayTracerManager.GetComponentsInChildren<Transform>(includeInactive);
             foreach (var go in rayTracerManagerChildren)
             {
+                // Get lineRendererContainer
                 if (go.name == "_lineRenderer_" + shapeName)
                 {
-                    line = go.gameObject.GetComponent<LineRenderer>();
-                    Debug.Log($"Got lineRenderer '{line.name}'.");
                     lineRendererFound = true;
+                    Debug.Log($"Got lineRenderer '{go.name}' containing [{go.childCount}] elements.");
+                    for (int k = 0; k < go.childCount; k++)
+                    {
+                        shapeRenderers[k] = go.GetChild(k).gameObject.GetComponent<LineRenderer>();
+                    }
                     break;
                 }
             }
@@ -119,7 +123,6 @@ public class multiPlaneRayTracer
                     if(child.childCount == planes.Length){
                         Debug.Log($"Got [{child.childCount}] hits containers on '{child.name}'.");
                         foundHitsContainer = true;
-                        Transform [] nestedElements = child.GetComponentsInChildren<Transform>(includeInactive);
                         for (int k = 0; k < child.childCount; k++)
                         {
                             planeHits[k] = child.GetChild(k).gameObject;
@@ -138,19 +141,26 @@ public class multiPlaneRayTracer
         {
             Debug.Log($"Adding shape: '{shapeName}'.");
             drawnShapes.Add(shapeName);
-
-            // Create a new GameObject which contains a LineRenderer component for the shape
+            // Create a new GameObject which contains all LineRenderers for the shape
             string lineRendererName = "_lineRenderer_" + (shapeName != "noname" ? shapeName : "");
-            GameObject lineRenderer = new GameObject(lineRendererName, typeof(LineRenderer));
-            lineRenderer.transform.parent = rayTracerManager.transform;
+            GameObject lineRendererContainer = new GameObject(lineRendererName);
+            lineRendererContainer.transform.parent = rayTracerManager.transform;
+            int R = 0;
+            foreach (var wall in planes)
+            {
+                // Create a LineRenderer for each plane
+                GameObject lineRenderer = new GameObject(lineRendererContainer.name + "_" + wall.name , typeof(LineRenderer));
+                lineRenderer.transform.parent = lineRendererContainer.transform;
+
+                var line = lineRenderer.GetComponent<LineRenderer>();
+                line.material = new Material(Shader.Find("Sprites/Default"));
+                line.startColor = line.endColor = Color.red; // TODO: Use some editor color
+                line.startWidth = line.endWidth = 5.0f; // TODO: Use lineRendererWidth
+                line.loop = true; // TODO : Make configurable
+                shapeRenderers[R] = line;
+                R++;
+            }
             Debug.Log($"Created '{lineRendererName}' LineRenderer.");
-
-            line = lineRenderer.GetComponent<LineRenderer>();
-
-            line.material = new Material(Shader.Find("Sprites/Default"));
-            line.startColor = line.endColor = Color.red; // TODO: Use some editor color
-            line.startWidth = line.endWidth = 5.0f; // TODO: Use lineRendererWidth
-            line.loop = true; // TODO : Make configurable
 
             // Create a new GameObject which contains all "hits" for the shape
             GameObject hitsObject = new GameObject("_hits_" + (shapeName != "noname" ? shapeName : ""));
@@ -159,7 +169,7 @@ public class multiPlaneRayTracer
             int p = 0;
             foreach (var wall in planes)
             {
-                string hitsName = "_hits_" + (shapeName != "noname" ? shapeName : "") + "_" + wall.name;
+                string hitsName = hitsObject.name + "_" + wall.name;
                 GameObject hitsWall = new GameObject(hitsName);
                 hitsWall.transform.parent = hitsObject.transform;
                 planeHits[p] = hitsWall;
@@ -168,10 +178,10 @@ public class multiPlaneRayTracer
             }
         }
 
-        if (line != null)
-            line.positionCount = shape.Length; // FIXME: Use (shape.Length + 1) * 2; ??
-        else
-            Debug.LogError($"LineRenderer '{shapeName}' was not set!.");
+        // if (line != null)
+            // line.positionCount = shape.Length; // FIXME: Use (shape.Length + 1) * 2; ??
+        // if (!line)
+            // Debug.LogError($"LineRenderer '{shapeName}' was not set!.");
 
         // Print plane normals // TODO: Only once per cycle
         if(DRAW_LINES) drawPlaneNormals();
@@ -280,17 +290,13 @@ public class multiPlaneRayTracer
 
             // Clip hitsOnPlane
             Debug.Log($"hitsOnPlane[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnPlane));
-            foreach(var x in hitsOnPlane)
-            {
-                // Debug.Log(x);
-            }
-
             float rectWidth = 500;
             float rectHeight = 500;
             // Clip shape to plane
             Vector4[] clippedShape = new Vector4[shape.Length];
             clippedShape = lineClipper.clipShapeToRectangle(hitsOnPlane, rectWidth, rectHeight);
 
+            var line = shapeRenderers[w];
             line.positionCount = clippedShape.Length + 1;
             line.numCornerVertices = line.positionCount;
 
