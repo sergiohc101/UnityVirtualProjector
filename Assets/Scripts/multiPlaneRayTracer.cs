@@ -207,7 +207,7 @@ public class multiPlaneRayTracer
             {
                 Debug.Log("------------------------------------------------------");
 
-                Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
+                Vector3 worldRayDirection = Rt.MultiplyVector(rayDirection);
                 DEBUG("worldRayDirection: " + worldRayDirection);
 
                 Debug.Log($"{shapeName}[{i+1}]: rayDirection: {rayDirection}");
@@ -221,7 +221,6 @@ public class multiPlaneRayTracer
                 float hit_distance;
                 if (plane.Raycast(ray, out hit_distance))
                 {
-
                     Vector3 hitPoint = ray.GetPoint(hit_distance);
                     hitsOnPlane[i] = hitPoint;
                     Debug.Log("Raycast hit Plane at distance: " + hit_distance);
@@ -229,7 +228,7 @@ public class multiPlaneRayTracer
                     Debug.Log(wall.name + " hitPoint: " + (hitPoint - wall.transform.position));
 
                     Vector3 scale = wall.transform.localScale;
-                    Debug.Log("wall.transform.localScale: " + scale);
+                    // Debug.Log("wall.transform.localScale: " + scale);
                     Matrix4x4 wall_Rt = wall.transform.localToWorldMatrix;
                     // Remove matrix scale
                     wall_Rt.SetColumn(0, wall_Rt.GetColumn(0) / scale[0]);
@@ -247,7 +246,6 @@ public class multiPlaneRayTracer
                                                 Vector3.zero,
                                                 new Vector3(-90.0f, 0.0f, 0.0f));
 
-                    Debug.Log("Point_on_Plane" + wall.name + ":" + hitPointInPlane);
 
                     //--------------------------------------------------------
 
@@ -277,6 +275,7 @@ public class multiPlaneRayTracer
 
                         Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
                     }
+                    Debug.Log($"[{hit.name}] on {wall.name}. Point_wrt_Plane: {hitPointInPlane}");
 
                 }
                 else
@@ -384,8 +383,8 @@ public class multiPlaneRayTracer
         int i = 0;
         foreach (var rayDirection in shape)
         {
-            Vector3 worldRayDirection = Rt.MultiplyVector(-rayDirection);
-            DEBUG("worldRayDirection: " + worldRayDirection);
+            Vector3 worldRayDirection = Rt.MultiplyVector(rayDirection);
+            DEBUG($"{shapeName}[{i}] :: worldRayDirection: " + worldRayDirection);
 
             Vector3 pointInNearestPlane = multiPlaneTrace(rayOrigin, worldRayDirection, shapeName); // bool DRAW_LINES
 
@@ -441,7 +440,7 @@ public class multiPlaneRayTracer
                 Vector3 hitPoint = ray.GetPoint(ent);
                 //Debug.Log("Raycast hit Plane at distance: " + ent);
                 Debug.Log("hitPoint wrt origin: " + hitPoint);
-                Debug.Log(wall.gameObject.name + "_hitPoint: " + (hitPoint - wall.transform.position));
+                Debug.Log(wall.gameObject.name + " hitPoint: " + (hitPoint - wall.transform.position));
 
 
                 Vector3 scale = wall.transform.localScale;
@@ -522,6 +521,7 @@ public class multiPlaneRayTracer
                     hitNear.transform.localScale = new Vector3(MS, MS, MS);
                     hitNear.GetComponent<Renderer>().material.color = Color.magenta;
                 }
+                Debug.Log($"[{hit.name}] on {wall.name}. Point_wrt_Plane: {hitPointInPlane}");
 
             }
             else

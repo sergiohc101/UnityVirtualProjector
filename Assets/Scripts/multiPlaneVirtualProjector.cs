@@ -36,7 +36,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public float v = 480.0f;
 
     // Camera matrix K
-    public float[,] K = new float[3, 3];
+    // public float[,] K = new float[3, 3];
 
     public float timeToCompleteCircle = 5.0f; // in seconds
     public float camTrajectoryRadius = 300;
@@ -44,10 +44,10 @@ public class multiPlaneVirtualProjector : MonoBehaviour
 
     // Wall points wrt origin
     Vector3[] Wall = {
-        new Vector3( -50.0f,  50.0f, 0.0f),
-        new Vector3( -50.0f, -50.0f, 0.0f),
-        new Vector3(  50.0f, -50.0f, 0.0f),
-        new Vector3(  50.0f,  50.0f, 0.0f),
+        new Vector3( -50.0f,  50.0f, 0.0f), //  (0)-------(3)
+        new Vector3( -50.0f, -50.0f, 0.0f), //  |          |
+        new Vector3(  50.0f, -50.0f, 0.0f), //  |          |
+        new Vector3(  50.0f,  50.0f, 0.0f), //  (1)-------(2)
     };
 
     Vector3[] triShape = {
@@ -67,11 +67,11 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     // Initialization
     void Start()
     {
-        // Set up camera matrix
-        K[0, 0] = K[1, 1] = f;
-        K[0, 2] = -u / 2.0f;
-        K[1, 2] = -v / 2.0f;
-        K[2, 2] = -1;
+        // // Set up camera matrix
+        // K[0, 0] = K[1, 1] = -f;
+        // K[0, 2] = u / 2.0f;
+        // K[1, 2] = v / 2.0f;
+        // K[2, 2] = -1;
 
         ///////////////////////////////////////////////////
         // Ray Tracer Manager
@@ -125,8 +125,8 @@ public class multiPlaneVirtualProjector : MonoBehaviour
 
         // Translation Vector wrt/from Projector to World Origin
         Vector3 t = M.transpose.MultiplyVector(-transform.position);
-        //DEBUG("Pos= " + (transform.position) );
-        //DEBUG("|Pos|= " + transform.position.magnitude);
+        DEBUG("Pos= " + (transform.position) );
+        DEBUG("|Pos|= " + transform.position.magnitude);
         DEBUG("t= " + t);
 
 
@@ -166,7 +166,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
 
             for (int i = 0; i < triShape.Length; i++)
             {
-                TRIShape[i] = triShape[i] + new Vector3(TRI_OFFSET.x, TRI_OFFSET.y, -f);
+                TRIShape[i] = triShape[i] + new Vector3(TRI_OFFSET.x, TRI_OFFSET.y, f);
             }
 
             multiPlaneRayTracer.multiPlaneTraceShape(transform.position, TRIShape, DRAW_LINES, "TRIANGLE_D");
@@ -237,7 +237,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
                 float Py = polyRadius * Mathf.Sin(angle);
                 Debug.Log("\t\t PolyVert[" + i + "]" + Px + "," + Py);
 
-                polyShape[i] = new Vector3(Px + POLY_OFFSET.x, Py + POLY_OFFSET.y, -f);
+                polyShape[i] = new Vector3(Px + POLY_OFFSET.x, Py + POLY_OFFSET.y, f);
             }
             //multiPlaneRayTracer.traceShape(polyShape, transform.position, polyLine, lineRendererOffset, DRAW_LINES);
             multiPlaneRayTracer multiPlaneRayTracer = new multiPlaneRayTracer(M, DEBUG_LOGS);
