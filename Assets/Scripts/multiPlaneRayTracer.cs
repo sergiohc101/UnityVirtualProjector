@@ -239,7 +239,7 @@ public class multiPlaneRayTracer
 
                     Vector3 t = wall_Rt.MultiplyPoint3x4(hitPoint - wall.transform.position);
 
-                    Debug.Log($"Hitpoint wrt to {wall.name}, Origin [t]: " + t);
+                    // Debug.Log($"Hitpoint wrt to {wall.name}, Origin [t]: " + t);
 
                     Vector3 hitPointInPlane = RotatePointAroundPivot(
                                                 t,
@@ -275,7 +275,7 @@ public class multiPlaneRayTracer
 
                         Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
                     }
-                    Debug.Log($"[{hit.name}] on {wall.name}. Point_wrt_Plane: {hitPointInPlane}");
+                    Debug.Log($"[{hit.name}] on '{wall.name}'. -> Point_wrt_Plane: {hitPointInPlane}");
 
                 }
                 else
@@ -288,30 +288,23 @@ public class multiPlaneRayTracer
             }
 
             // Clip hitsOnPlane
-            Debug.Log($"hitsOnPlane[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnPlane));
+            Debug.Log($" (*) hitsOnPlane[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnPlane));
             float rectWidth = 500;
             float rectHeight = 500;
             // Clip shape to plane
             Vector4[] clippedShape = new Vector4[shape.Length];
             clippedShape = lineClipper.clipShapeToRectangle(hitsOnPlane, rectWidth, rectHeight);
+            Debug.Log($" (*) clippedShape[{clippedShape.Length}]:" +  string.Join(", ", clippedShape));
 
             var line = shapeRenderers[w];
-            line.positionCount = clippedShape.Length + 1;
+            line.positionCount = clippedShape.Length;
             line.numCornerVertices = line.positionCount;
 
             float Z = -5.0f;
-            // Render clipped shape
             for (int k = 0; k < clippedShape.Length; k++)
             {
-                int j = (k+1) % clippedShape.Length;
-                Vector4 clippedLine= lineClipper.ClipLineToRectangle(clippedShape[k].x, clippedShape[k].y, clippedShape[k].z, clippedShape[k].w, rectWidth, rectHeight);
-                Vector4 clippedLine2= lineClipper.ClipLineToRectangle(clippedShape[k].z, clippedShape[k].w, clippedShape[j].x, clippedShape[j].y, rectWidth, rectHeight);
-                // renderLine(clippedLine, Color.magenta, "clipped_polygon_" + i);
-                // renderLine(clippedLine2, Color.red, "clipped_polygon_" + i +  "_"); // FIXME
                 Vector3 S1 = new Vector3(clippedShape[k].x, clippedShape[k].y, Z/* hitsOnPlane[k].z */ ) ;
-                Vector3 S2 = new Vector3(clippedShape[k].z, clippedShape[k].w, Z /* hitsOnPlane[k].z */ );
                 line.SetPosition(k,S1);
-                line.SetPosition(k+1,S2);
             }
 
             w++;
@@ -501,15 +494,15 @@ public class multiPlaneRayTracer
 
                     Debug.DrawRay(ray.origin, ray.direction * ent, Color.magenta);  // FIXME
 
-                    Vector3 result = wallBounds.ClosestPoint(hitPointInPlane);
+                    Vector3 closestPointInPlane = wallBounds.ClosestPoint(hitPointInPlane);
 
                     Vector3 rotatedResult = RotatePointAroundPivot(
-                                                result,
+                                                closestPointInPlane,
                                                 Vector3.zero,
                                                 new Vector3(90.0f, 0.0f, 0.0f));
 
-                    //Debug.Log("ClosestPoint(hitPointInPlane):  " + result);
-                    //Debug.Log("ROT_ClosestPoint(hitPointInPlane):  " + rotatedResult);
+                    //Debug.Log("closestPointInPlane  " + closestPointInPlane);
+                    //Debug.Log("ROT_ClosestPoint(hitPointInPlane):  " + rotatedResult);closestPointInPlane
                     Vector3 closestPointForHitInWorld = Rt.transpose.MultiplyPoint3x4(rotatedResult);
                     //Debug.Log("closestPointForHitInWorld():  " + closestPointForHitInWorld);
 
@@ -526,8 +519,8 @@ public class multiPlaneRayTracer
             }
             else
             {
+                Debug.Log("(!) No intersection on");
                 Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
-                //Debug.Log("No intersection");
             }
 
         }

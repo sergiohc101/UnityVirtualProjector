@@ -43,6 +43,7 @@ public static Vector4 ClipLineToRectangle(float x1, float y1, float x2, float y2
     float rectBottom =/* rectCenter.y */ - rectHeight / 2f;
 
     // Debug.Log($"Rectangle center: {rectCenter}");
+    Debug.Log($"ClipLineToRectangle::Line points: {x1}, {y1} -> {x2}, {y2}");
     // Debug.Log($"Rectangle corners: {rectLeft}, {rectRight}, {rectTop}, {rectBottom}");
     // renderLine(new Vector4(rectLeft, rectTop, rectRight, rectBottom), Color.magenta , "_Rectangle_corners");
     // renderLine(new Vector4(rectLeft, rectTop, rectRight, rectTop), Color.green , "_Rectangle_top");
@@ -58,14 +59,14 @@ public static Vector4 ClipLineToRectangle(float x1, float y1, float x2, float y2
     // Both endpoints are inside or on the boundary, return the original line
     if ((code1 | code2) == 0)
     {
-        // Debug.Log("Both endpoints are inside");
+        Debug.Log("Both endpoints are inside");
         return new Vector4(x1, y1, x2, y2);
     }
 
     // Both endpoints are outside the same side, line is completely outside
     if ((code1 & code2) != 0)
     {
-        // Debug.Log("Both endpoints are outside");
+        Debug.Log("Both endpoints are outside");
         return Vector4.zero;
     }
 
@@ -136,6 +137,7 @@ public static Vector4[] clipShapeToRectangle(Vector3[] shape, float rectWidth, f
         clippedShape[i] = clippedLine;
     }
 
+    // Returns Vector.Zero entries for those lines with both endpoints are outside roi
     return clippedShape;
 }
 
