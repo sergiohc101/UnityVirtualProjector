@@ -303,8 +303,20 @@ public class multiPlaneRayTracer
             float Z = -5.0f;
             for (int k = 0; k < clippedShape.Length; k++)
             {
-                Vector3 S1 = new Vector3(clippedShape[k].x, clippedShape[k].y, Z/* hitsOnPlane[k].z */ ) ;
-                line.SetPosition(k,S1);
+                int n = (k+1) % clippedShape.Length;
+                Vector3 point1 = new Vector3(clippedShape[k].x, clippedShape[k].y, 0 ) ;
+                Vector3 point2 = new Vector3(clippedShape[k].z, clippedShape[k].w, 0 ) ;
+
+                if(point1 != Vector3.zero)
+                {
+                    point1.z = Z;
+                    line.SetPosition(k,point1);
+                }
+                if(point2 != Vector3.zero)
+                {
+                    point2.z = Z;
+                    line.SetPosition(n,point2);
+                }
             }
 
             w++;
