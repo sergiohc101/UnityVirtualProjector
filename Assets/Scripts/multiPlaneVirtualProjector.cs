@@ -6,6 +6,9 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     public bool MOVE_CAM = true;
     public bool LOOK_AROUND = true;
     public Vector3 camLookAt;
+    Vector3 camLookAroundAt;
+
+    public float camTrajectoryRadius = 300;
     public Color camColor;
 
     public bool DRAW_QUAD = true;
@@ -39,7 +42,6 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     // public float[,] K = new float[3, 3];
 
     public float timeToCompleteCircle = 5.0f; // in seconds
-    public float camTrajectoryRadius = 300;
     public float currentAngleDeg;
 
     // Wall points wrt origin
@@ -99,24 +101,21 @@ public class multiPlaneVirtualProjector : MonoBehaviour
             float Cy = camTrajectoryRadius * Mathf.Sin(currentAngleDeg * Mathf.Deg2Rad);
             transform.position = new Vector3(Cx, Cy, transform.position.z);
         }
+        // Projector looks at world origin, up vector is [0 1 0]
+        // This can be overriden by camLookAt and LOOK_AROUND public values.
+        camLookAroundAt = camLookAt;
         if (LOOK_AROUND)
         {
             // Projector looks around in space
             float camSpeed = 360.0f / timeToCompleteCircle;
             currentAngleDeg += Time.deltaTime * camSpeed;
             if (Mathf.Abs(currentAngleDeg) >= 360.0f) currentAngleDeg = 0.0f;
-
-            camLookAt.x = camTrajectoryRadius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
-            transform.LookAt(camLookAt);
+            camLookAroundAt.x += camTrajectoryRadius * Mathf.Cos(currentAngleDeg * Mathf.Deg2Rad);
         }
-        else
-        {
-            // Projector looks at world origin, up vector is [0 1 0]
-            transform.LookAt(camLookAt);
-        }
+        transform.LookAt(camLookAroundAt);
 
-        // Line from projector to origin
-        if (DRAW_LINES) Debug.DrawLine(transform.position, camLookAt, camColor);
+        // Line from projector to origin/ camLookAt position
+        if (DRAW_LINES) Debug.DrawLine(transform.position, camLookAroundAt, camColor);
 
         //////////////////////////////////////////////////////////////////////////////
 
