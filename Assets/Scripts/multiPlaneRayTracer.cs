@@ -203,6 +203,7 @@ public class multiPlaneRayTracer
             // Iterate shape points to compute hitsOnPlane
             int i = 0;
             Vector3[] hitsOnPlane = new Vector3[shape.Length];
+            Vector3[] hitsOnWorld = new Vector3[shape.Length];
             foreach (var rayDirection in shape)
             {
                 Debug.Log("------------------------------------------------------");
@@ -222,7 +223,7 @@ public class multiPlaneRayTracer
                 if (plane.Raycast(ray, out hit_distance))
                 {
                     Vector3 hitPoint = ray.GetPoint(hit_distance);
-                    hitsOnPlane[i] = hitPoint;
+                    hitsOnWorld[i] = hitPoint;
                     Debug.Log("Raycast hit Plane at distance: " + hit_distance);
                     Debug.Log("hitPoint wrt origin: " + hitPoint);
                     Debug.Log(wall.name + " hitPoint: " + (hitPoint - wall.transform.position));
@@ -245,7 +246,7 @@ public class multiPlaneRayTracer
                                                 t,
                                                 Vector3.zero,
                                                 new Vector3(-90.0f, 0.0f, 0.0f));
-
+                    hitsOnPlane[i] = hitPointInPlane;
 
                     //--------------------------------------------------------
 
@@ -287,8 +288,10 @@ public class multiPlaneRayTracer
                 i++;
             }
 
-            // Clip hitsOnPlane
+            Debug.Log($" (*) hitsOnWorld[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnWorld));
             Debug.Log($" (*) hitsOnPlane[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnPlane));
+
+            // Clip hitsOnPlane
             float rectWidth = 500;
             float rectHeight = 500;
             // Clip shape to plane
@@ -300,7 +303,8 @@ public class multiPlaneRayTracer
             line.positionCount = clippedShape.Length;
             line.numCornerVertices = line.positionCount;
 
-            float Z = -5.0f;
+            float Z = 0.0f;
+
             for (int k = 0; k < clippedShape.Length; k++)
             {
                 int n = (k+1) % clippedShape.Length;
@@ -309,12 +313,12 @@ public class multiPlaneRayTracer
 
                 if(point1 != Vector3.zero)
                 {
-                    point1.z = Z;
+                    point1.z = hitsOnWorld[k].z + Z;
                     line.SetPosition(k,point1);
                 }
                 if(point2 != Vector3.zero)
                 {
-                    point2.z = Z;
+                    point2.z = hitsOnWorld[n].z + Z;
                     line.SetPosition(n,point2);
                 }
             }
