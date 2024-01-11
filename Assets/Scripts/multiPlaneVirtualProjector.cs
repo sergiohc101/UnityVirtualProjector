@@ -2,6 +2,8 @@
 
 public class multiPlaneVirtualProjector : MonoBehaviour
 {
+    [Header("Projector Properties")]
+    public bool hideMissedHits = true;
     public bool DRAW_LINES = true;
     public bool MOVE_CAM = true;
     public bool LOOK_AROUND = true;
@@ -10,21 +12,29 @@ public class multiPlaneVirtualProjector : MonoBehaviour
 
     public float camTrajectoryRadius = 300;
     public Color camColor;
+    public float timeToCompleteCircle = 5.0f; // in seconds
+    public float currentAngleDeg;
+    public float f = 1000.0f;
 
+    [Header("QUAD")]
     public bool DRAW_QUAD = true;
     public Color quadColor = Color.magenta;
     public Vector2 QUAD_OFFSET;
 
+    [Header("TRI")]
     public bool DRAW_TRI = true;
     public Color triColor = Color.cyan;
     public Vector2 TRI_OFFSET;
 
+    [Header("POLY")]
     public bool DRAW_POLY = true;
     public Color polyColor = Color.red;
     public Vector2 POLY_OFFSET;
     public bool LIMIT_RADIUS = true;
     public int polyVerts = 6;
     public int polyRadius = 100;
+
+    [Header("LineRenderers")]
     public int lineRendererWidth = 10; // FIXME : adapt
     public int lineRendererOffset = -1;
 
@@ -33,16 +43,13 @@ public class multiPlaneVirtualProjector : MonoBehaviour
     // public TextAsset textAsset;
     // Vector3[] shape;
 
-    [Header("Projector Properties")]
-    public float f = 1000.0f;
-    public float u = 640.0f;
-    public float v = 480.0f;
+    // [Header("Projector Properties")]
+    // public float f = 1000.0f;
+    // public float u = 640.0f;
+    // public float v = 480.0f;
 
     // Camera matrix K
     // public float[,] K = new float[3, 3];
-
-    public float timeToCompleteCircle = 5.0f; // in seconds
-    public float currentAngleDeg;
 
     // Wall points wrt origin
     Vector3[] Wall = {
@@ -150,7 +157,7 @@ public class multiPlaneVirtualProjector : MonoBehaviour
                 wallShape[i] = Wall[i] + new Vector3(QUAD_OFFSET.x, QUAD_OFFSET.y, f);
             }
 
-            raytracer.NEW_multiPlaneTraceShape(transform.position, wallShape, DRAW_LINES, "QUAD");
+            raytracer.NEW_multiPlaneTraceShape(transform.position, wallShape, DRAW_LINES, "QUAD", hideMissedHits);
         }
 
 

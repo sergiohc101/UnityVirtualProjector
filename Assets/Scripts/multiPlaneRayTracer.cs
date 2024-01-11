@@ -62,7 +62,7 @@ public class multiPlaneRayTracer
     }
 
     // TODO: Test on old SDK for retrocompatibility
-    public void NEW_multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname")
+    public void NEW_multiPlaneTraceShape(Vector3 rayOrigin, Vector3[] shape, bool DRAW_LINES, string shapeName = "noname", bool hideMissedHits = true)
     {
         // Instantiate LineRenderer for shapeName:
         //      Since each line segment can intersect a plane boundaries at most twice,
@@ -81,6 +81,7 @@ public class multiPlaneRayTracer
         LineRenderer[] shapeRenderers = new LineRenderer[planes.Length];
         Debug.Log($"Tracing shape '{shapeName}' containing [{shape.Length}] points. Using [{planes.Length}] planes.");
         bool foundHitsContainer = false; // TODO: Implement
+        // planeManager.hideMissedHits = hideMissedHits; // Maybe this removes crazy usage
 
         // Look up shapeName in list
         if (drawnShapes.Contains(shapeName))
@@ -247,32 +248,33 @@ public class multiPlaneRayTracer
 
                     Bounds wallBounds = new Bounds(new Vector3(0, 0, 0), new Vector3(500, 500, 1)); // FIXME : move this to planeManager ??
                     bool hitWithinBounds = wallBounds.Contains(hitPointInPlane);
+                    // Dont generate GameObjects for "Miss" hits
+                    if (!(hideMissedHits && !hitWithinBounds)){
+                        GameObject hit = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        hit.transform.parent = hitsContainer.transform;
+                        hit.transform.position = hitPoint;
+                        hit.transform.transform.rotation = wall.transform.rotation;
+                        hit.transform.localScale = new Vector3(hitScale, hitScale, hitScale);
 
-                    GameObject hit = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    hit.transform.parent = hitsContainer.transform;
-                    hit.transform.position = hitPoint;
-                    hit.transform.transform.rotation = wall.transform.rotation;
-                    hit.transform.localScale = new Vector3(hitScale, hitScale, hitScale);
+                        // Get the Renderer component attached to the hit GameObject
+                        Renderer hitRenderer = hit.GetComponent<Renderer>();
 
-                    // Get the Renderer component attached to the hit GameObject
-                    Renderer hitRenderer = hit.GetComponent<Renderer>();
+                        if (hitWithinBounds) {
+                            hit.name = "Hit" + "_" + (i+1);
+                            // TODO: Use wall color
+                            if      (wall == planes[0]) { hitRenderer.material.color = Color.green; }
+                            else if (wall == planes[1]) { hitRenderer.material.color = Color.blue; }
+                            else if (wall == planes[2]) { hitRenderer.material.color = Color.yellow; }
+                        }
+                        else
+                        {
+                            hit.name = "Miss" + "_" + (i+1);
+                            hit.GetComponent<Renderer>().material.color = Color.magenta;
 
-                    if (hitWithinBounds) {
-                        hit.name = "Hit" + "_" + (i+1);
-                        // TODO: Use wall color
-                        if      (wall == planes[0]) { hitRenderer.material.color = Color.green; }
-                        else if (wall == planes[1]) { hitRenderer.material.color = Color.blue; }
-                        else if (wall == planes[2]) { hitRenderer.material.color = Color.yellow; }
+                            if(DRAW_LINES) Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
+                        }
                     }
-                    else
-                    {
-                        hit.name = "Miss" + "_" + (i+1);
-                        hit.GetComponent<Renderer>().material.color = Color.magenta;
-
-                        if(DRAW_LINES) Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
-                    }
-                    Debug.Log($"[{hit.name}] on '{wall.name}'. -> Point_wrt_Plane: {hitPointInPlane}");
-
+                    Debug.Log($"Hit {i+1} [{hitWithinBounds}] on '{wall.name}'. -> Point_wrt_Plane: {hitPointInPlane}");
                 }
                 else
                 {
