@@ -178,11 +178,6 @@ public class multiPlaneRayTracer
             }
         }
 
-        // if (line != null)
-            // line.positionCount = shape.Length; // FIXME: Use (shape.Length + 1) * 2; ??
-        // if (!line)
-            // Debug.LogError($"LineRenderer '{shapeName}' was not set!.");
-
         // Print plane normals // TODO: Only once per cycle
         if(DRAW_LINES) drawPlaneNormals();
 
@@ -198,7 +193,7 @@ public class multiPlaneRayTracer
             Plane plane = new Plane(); //(wall.transform.position, -wall.up.normalized); // Plane Constructor not working on old sdk.
             plane.SetNormalAndPosition(-wall.up.normalized, wall.transform.position);
 
-            Debug.Log($"Target='{wall.name}' , position={wall.transform.position} , normal={wall.up.normalized} | planeNrml={plane.normal} | rayOrigin={rayOrigin}");
+            Debug.Log($"TargetPlane='{wall.name}' , position={wall.transform.position} , normal={wall.up.normalized} | planeNrml={plane.normal} | rayOrigin={rayOrigin}");
 
             // Iterate shape points to compute hitsOnPlane
             int i = 0;
@@ -224,7 +219,7 @@ public class multiPlaneRayTracer
                 {
                     Vector3 hitPoint = ray.GetPoint(hit_distance);
                     hitsOnWorld[i] = hitPoint;
-                    Debug.Log("Raycast hit Plane at distance: " + hit_distance);
+                    // Debug.Log("Raycast hit Plane at distance: " + hit_distance);
                     Debug.Log("hitPoint wrt origin: " + hitPoint);
                     Debug.Log(wall.name + " hitPoint: " + (hitPoint - wall.transform.position));
 
@@ -240,7 +235,7 @@ public class multiPlaneRayTracer
 
                     Vector3 t = wall_Rt.MultiplyPoint3x4(hitPoint - wall.transform.position);
 
-                    // Debug.Log($"Hitpoint wrt to {wall.name}, Origin [t]: " + t);
+                    // Debug.Log($"Hitpoint[{i+1}] wrt to {wall.name}, Origin [t]: " + t);
 
                     Vector3 hitPointInPlane = RotatePointAroundPivot(
                                                 t,
@@ -274,7 +269,7 @@ public class multiPlaneRayTracer
                         hit.name = "Miss" + "_" + (i+1);
                         hit.GetComponent<Renderer>().material.color = Color.magenta;
 
-                        Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
+                        if(DRAW_LINES) Debug.DrawRay(ray.origin, ray.direction * hit_distance, Color.magenta);
                     }
                     Debug.Log($"[{hit.name}] on '{wall.name}'. -> Point_wrt_Plane: {hitPointInPlane}");
 
@@ -291,37 +286,48 @@ public class multiPlaneRayTracer
             Debug.Log($" (*) hitsOnWorld[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnWorld));
             Debug.Log($" (*) hitsOnPlane[{wall.gameObject.name}]:" +  string.Join(", ", hitsOnPlane));
 
-            // Clip hitsOnPlane
-            float rectWidth = 500;
-            float rectHeight = 500;
-            // Clip shape to plane
-            Vector4[] clippedShape = new Vector4[shape.Length];
-            clippedShape = lineClipper.clipShapeToRectangle(hitsOnPlane, rectWidth, rectHeight);
-            Debug.Log($" (*) clippedShape[{clippedShape.Length}]:" +  string.Join(", ", clippedShape));
-
             var line = shapeRenderers[w];
-            line.positionCount = clippedShape.Length;
+            if (!line) Debug.LogError($"LineRenderer ['{w}'] '{shapeName}' was not set!.");
+            line.positionCount = hitsOnPlane.Length;
             line.numCornerVertices = line.positionCount;
-
-            float Z = 0.0f;
-
-            for (int k = 0; k < clippedShape.Length; k++)
+            float Z = 5.0f;
+            for (int k = 0; k < hitsOnPlane.Length; k++)
             {
-                int n = (k+1) % clippedShape.Length;
-                Vector3 point1 = new Vector3(clippedShape[k].x, clippedShape[k].y, 0 ) ;
-                Vector3 point2 = new Vector3(clippedShape[k].z, clippedShape[k].w, 0 ) ;
+                Vector3 point1 = new Vector3() ;
+                point1 = hitsOnWorld[k];
+                point1.z -= Z;
 
-                if(point1 != Vector3.zero)
-                {
-                    point1.z = hitsOnWorld[k].z + Z;
-                    line.SetPosition(k,point1);
-                }
-                if(point2 != Vector3.zero)
-                {
-                    point2.z = hitsOnWorld[n].z + Z;
-                    line.SetPosition(n,point2);
-                }
+                line.SetPosition(k,point1);
             }
+
+            // WIP Clip hitsOnPlane
+            // float rectWidth = 500;
+            // float rectHeight = 500;
+            // // Clip shape to plane
+            // Vector4[] clippedShape = new Vector4[shape.Length];
+            // clippedShape = lineClipper.clipShapeToRectangle(hitsOnPlane, rectWidth, rectHeight);
+            // Debug.Log($" (*) clippedShape[{clippedShape.Length}]:" +  string.Join(", ", clippedShape));
+
+            // for (int k = 0; k < clippedShape.Length; k++)
+            // {
+            //     int n = (k+1) % clippedShape.Length;
+            //     Vector3 point1 = new Vector3(clippedShape[k].x, clippedShape[k].y, 0 ) ;
+            //     Vector3 point2 = new Vector3(clippedShape[k].z, clippedShape[k].w, 0 ) ;
+
+            //     if(point1 != Vector3.zero)
+            //     {
+
+            //         point1 += wall.transform.position;
+            //         point1.z += hitsOnWorld[k].z + Z;
+            //         line.SetPosition(k,point1);
+            //     }
+            //     if(point2 != Vector3.zero)
+            //     {
+            //         point2 += wall.transform.position;
+            //         point2.z += hitsOnWorld[n].z + Z;
+            //         line.SetPosition(n,point2);
+            //     }
+            // }
 
             w++;
         }
